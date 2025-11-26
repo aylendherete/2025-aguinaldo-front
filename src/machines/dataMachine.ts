@@ -188,23 +188,43 @@ export const dataMachine = createMachine({
   states: {
     idle: {
       on: {
-        SET_AUTH: {
-          target: "fetchingDoctors",
-          actions: [
-            assign({
-              accessToken: ({ event }) => event.accessToken,
-              userRole: ({ event }) => event.userRole,
-              userId: ({ event }) => event.userId,
-              doctorId: ({ event }) => event.userRole === "DOCTOR" ? event.userId : null,
-              loading: ({ context }) => ({ ...context.loading, initializing: true }),
-            }),
-            () => {
-              orchestrator.sendToMachine("notification", {
-                type: "LOAD_NOTIFICATIONS"
-              });
-            }
-          ],
-        },
+        SET_AUTH: [
+          {
+            guard: ({ event }) => event.userRole === "DOCTOR",
+            target: "fetchingRatingSubcategories",
+            actions: [
+              assign({
+                accessToken: ({ event }) => event.accessToken,
+                userRole: ({ event }) => event.userRole,
+                userId: ({ event }) => event.userId,
+                doctorId: ({ event }) => event.userRole === "DOCTOR" ? event.userId : null,
+                loading: ({ context }) => ({ ...context.loading, initializing: true }),
+              }),
+              () => {
+                orchestrator.sendToMachine("notification", {
+                  type: "LOAD_NOTIFICATIONS"
+                });
+              }
+            ],
+          },
+          {
+            target: "fetchingDoctors",
+            actions: [
+              assign({
+                accessToken: ({ event }) => event.accessToken,
+                userRole: ({ event }) => event.userRole,
+                userId: ({ event }) => event.userId,
+                doctorId: ({ event }) => event.userRole === "DOCTOR" ? event.userId : null,
+                loading: ({ context }) => ({ ...context.loading, initializing: true }),
+              }),
+              () => {
+                orchestrator.sendToMachine("notification", {
+                  type: "LOAD_NOTIFICATIONS"
+                });
+              }
+            ],
+          }
+        ],
         CLEAR_ACCESS_TOKEN: {
           actions: assign({
             accessToken: null,
