@@ -263,7 +263,7 @@ describe('dataMachine', () => {
         expect(actor.getSnapshot().value).toBe('ready');
       }, { timeout: 2000 });
 
-      expect(mockLoadDoctors).toHaveBeenCalled();
+      expect(mockLoadDoctors).not.toHaveBeenCalled();
       expect(mockLoadMyTurns).toHaveBeenCalled();
       expect(mockLoadDoctorAvailability).toHaveBeenCalled();
       expect(mockLoadDoctorModifyRequests).toHaveBeenCalled();
@@ -1235,7 +1235,7 @@ describe('dataMachine', () => {
         expect(actor.getSnapshot().value).toBe('ready');
       }, { timeout: 2000 });
 
-      expect(mockLoadDoctors).toHaveBeenCalled();
+      expect(mockLoadDoctors).not.toHaveBeenCalled();
       expect(mockLoadMyTurns).toHaveBeenCalled();
       expect(mockLoadDoctorAvailability).toHaveBeenCalled();
       expect(mockLoadDoctorModifyRequests).toHaveBeenCalled();
