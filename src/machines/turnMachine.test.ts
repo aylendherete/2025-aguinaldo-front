@@ -438,6 +438,91 @@ describe('turnMachine', () => {
       expect(context.availableTurns).toEqual([]);
       expect(context.myTurns).toEqual([]);
     });
+
+    it('should filter out doctors without availability and hide their specialties', async () => {
+      const unavailableDoctor: Doctor = {
+        ...mockDoctor,
+        id: 'doctor-2',
+        specialty: 'dermatology',
+        medicalLicense: 'ML67890',
+      };
+
+      mockOrchestrator.getSnapshot
+        .mockReturnValueOnce({
+          context: {
+            doctors: [mockDoctor, unavailableDoctor],
+            availableTurns: mockAvailableSlots,
+            myTurns: [mockTurn],
+            accessToken: 'token-123',
+            userId: 'patient-1',
+          },
+        })
+        .mockReturnValueOnce({
+          context: {
+            authResponse: {
+              id: 'patient-1',
+            },
+          },
+        });
+
+      mockTurnService.getAvailableDates.mockImplementation(async (doctorId: string) => {
+        if (doctorId === unavailableDoctor.id) {
+          return [];
+        }
+        return mockAvailableDates;
+      });
+
+      actor = createActor(turnMachine);
+      actor.start();
+
+      actor.send({ type: 'DATA_LOADED' });
+
+      await waitForAvailabilitySync();
+
+      const context = actor.getSnapshot().context;
+      expect(context.allDoctors).toHaveLength(2);
+      expect(context.doctors).toEqual([expect.objectContaining({ id: mockDoctor.id })]);
+      expect(context.specialties).toEqual([{ value: 'cardiology', label: 'Cardiology' }]);
+      expect(context.doctorAvailability).toMatchObject({
+        [mockDoctor.id]: true,
+        [unavailableDoctor.id]: false,
+      });
+      expect(context.availableTurns).toEqual([]);
+    });
+
+    it('should clear doctors and specialties when no availability exists', async () => {
+      mockOrchestrator.getSnapshot
+        .mockReturnValueOnce({
+          context: {
+            doctors: [mockDoctor],
+            availableTurns: mockAvailableSlots,
+            myTurns: [mockTurn],
+            accessToken: 'token-123',
+          },
+        })
+        .mockReturnValueOnce({
+          context: {
+            authResponse: {
+              id: 'patient-1',
+            },
+          },
+        });
+
+      mockTurnService.getAvailableDates.mockResolvedValue([]);
+
+      actor = createActor(turnMachine);
+      actor.start();
+
+      actor.send({ type: 'DATA_LOADED' });
+
+      await waitForAvailabilitySync();
+
+      const context = actor.getSnapshot().context;
+      expect(context.doctors).toEqual([]);
+      expect(context.specialties).toEqual([]);
+      expect(context.doctorAvailability).toMatchObject({ [mockDoctor.id]: false });
+      expect(context.availableTurns).toEqual([]);
+    });
   });
 
   describe('dataManagement Region - CREATE_TURN', () => {
