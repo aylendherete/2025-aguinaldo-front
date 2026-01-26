@@ -54,6 +54,8 @@ export interface DataMachineContext {
   userBadges: Badge[];
   userBadgeProgress: BadgeProgress[];
   
+  pendingCancelTurnId: string | null;
+
   loading: {
     doctors: boolean;
     specialties: boolean;
@@ -118,6 +120,8 @@ export const DataMachineDefaultContext: DataMachineContext = {
   userBadges: [],
   userBadgeProgress: [],
   
+  pendingCancelTurnId: null,
+
   loading: {
     doctors: false,
     specialties: false,
@@ -175,12 +179,20 @@ export type DataMachineEvent =
   | { type: "LOAD_MY_MODIFY_REQUESTS" }
   | { type: "UPDATE_TURNS_NEEDING_RATING"; turns: any[] }
   | { type: "LOAD_RATING_SUBCATEGORIES"; role?: string }
-  | { type: "LOAD_RATED_SUBCATEGORY_COUNTS"; doctorIds: string[] };
+  | { type: "LOAD_RATED_SUBCATEGORY_COUNTS"; doctorIds: string[] }
+  | { type: "CHECK_URL_CANCEL_TURN"; turnId: string };
 
 export const dataMachine = createMachine({
   id: "data",
   initial: "idle",
   context: DataMachineDefaultContext,
+  on: {
+    CHECK_URL_CANCEL_TURN: {
+      actions: assign({
+        pendingCancelTurnId: ({ event }) => event.turnId
+      })
+    }
+  },
   types: {
     context: {} as DataMachineContext,
     events: {} as DataMachineEvent,
@@ -308,8 +320,36 @@ export const dataMachine = createMachine({
             });
             
           }, 0);
+
+          if (context.pendingCancelTurnId && context.myTurns) {
+            const turn = context.myTurns.find((t: any) => t.id === context.pendingCancelTurnId);
+            if (turn) {
+              if (turn.status === 'CANCELED') {
+                orchestrator.sendToMachine(UI_MACHINE_ID, {
+                  type: 'OPEN_CONFIRMATION_DIALOG',
+                  action: 'acknowledge',
+                  turnId: context.pendingCancelTurnId,
+                  title: 'Turno Cancelado',
+                  message: 'El turno ya se encuentra cancelado.',
+                  confirmButtonText: 'Continuar',
+                  confirmButtonColor: 'primary'
+                });
+              } else {
+                orchestrator.sendToMachine(UI_MACHINE_ID, {
+                  type: 'OPEN_CANCEL_TURN_DIALOG',
+                  turnId: context.pendingCancelTurnId,
+                  turnData: turn,
+                  title: 'Cancelar Turno',
+                  message: '¿Estás seguro de que quieres cancelar este turno? Esta acción no se puede deshacer.',
+                  confirmButtonText: 'Cancelar Turno',
+                  confirmButtonColor: 'error'
+                });
+              }
+            }
+          }
         },
         assign({
+          pendingCancelTurnId: null,
           loading: ({ context }) => ({ ...context.loading, initializing: false }),
         })
       ],
@@ -319,6 +359,34 @@ export const dataMachine = createMachine({
         });
       },
       on: {
+        CHECK_URL_CANCEL_TURN: {
+          actions: ({ context, event }) => {
+             const turn = context.myTurns?.find((t: any) => t.id === event.turnId);
+             if (turn) {
+               if (turn.status === 'CANCELED') {
+                 orchestrator.sendToMachine(UI_MACHINE_ID, {
+                   type: 'OPEN_CONFIRMATION_DIALOG',
+                   action: 'acknowledge',
+                   turnId: event.turnId,
+                   title: 'Turno Cancelado',
+                   message: 'El turno ya se encuentra cancelado.',
+                   confirmButtonText: 'Continuar',
+                   confirmButtonColor: 'primary'
+                 });
+               } else {
+                  orchestrator.sendToMachine(UI_MACHINE_ID, {
+                    type: 'OPEN_CANCEL_TURN_DIALOG',
+                    turnId: event.turnId,
+                    turnData: turn,
+                    title: 'Cancelar Turno',
+                    message: '¿Estás seguro de que quieres cancelar este turno? Esta acción no se puede deshacer.',
+                    confirmButtonText: 'Cancelar Turno',
+                    confirmButtonColor: 'error'
+                  });
+               }
+             }
+          }
+        },
         SET_AUTH: {
           target: "fetchingDoctors",
           actions: assign({
@@ -634,10 +702,18 @@ export const dataMachine = createMachine({
     },
     
     fetchingAvailableTurns: {
-      entry: assign({
-        loading: ({ context }) => ({ ...context.loading, availableTurns: true }),
-        errors: ({ context }) => ({ ...context.errors, availableTurns: null }),
-      }),
+      entry: [
+        assign({
+          loading: ({ context }) => ({ ...context.loading, availableTurns: true }),
+          errors: ({ context }) => ({ ...context.errors, availableTurns: null }),
+        }),
+        () => {
+          orchestrator.sendToMachine("turn", {
+            type: "SET_AVAILABLE_SLOTS_LOADING",
+            isLoading: true,
+          });
+        },
+      ],
       invoke: {
         src: fromPromise(async ({ input }: { input: { accessToken: string; doctorId: string; date: string } }) => {
           const result = await loadAvailableTurns(input);
@@ -650,10 +726,18 @@ export const dataMachine = createMachine({
         }),
         onDone: {
           target: "ready",
-          actions: assign({
-            availableTurns: ({ event }) => event.output,
-            loading: ({ context }) => ({ ...context.loading, availableTurns: false }),
-          }),
+          actions: [
+            assign({
+              availableTurns: ({ event }) => event.output,
+              loading: ({ context }) => ({ ...context.loading, availableTurns: false }),
+            }),
+            () => {
+              orchestrator.sendToMachine("turn", {
+                type: "SET_AVAILABLE_SLOTS_LOADING",
+                isLoading: false,
+              });
+            },
+          ],
         },
         onError: {
           target: "idle",
@@ -668,6 +752,12 @@ export const dataMachine = createMachine({
                 availableTurns: false
               })
             }),
+            () => {
+              orchestrator.sendToMachine("turn", {
+                type: "SET_AVAILABLE_SLOTS_LOADING",
+                isLoading: false,
+              });
+            },
             ({ event }) => {
               if (event.error instanceof Error && (event.error.message.includes('401') || event.error.message.toLowerCase().includes('unauthorized'))) {
                 orchestrator.sendToMachine(AUTH_MACHINE_ID, { type: "LOGOUT" });
@@ -1177,6 +1267,14 @@ export const dataMachine = createMachine({
               });
             }
           ],
+        },
+      },
+      on: {
+        UPDATE_TURNS_NEEDING_RATING: {
+          actions: assign({
+            turnsNeedingRating: ({ event }) => (event as any).turns,
+            ratingModalChecked: true,
+          })
         },
       },
     },
