@@ -168,7 +168,7 @@ export const profileMachine = createMachine({
         CANCEL_PROFILE_EDIT: {
           actions: assign(({ context, event }) => {
             if (!context.profile) return {};
-            const originalValue = (context.profile as Record<string, unknown>)[event.key];
+            const originalValue = (context.profile as unknown as Record<string, unknown>)[event.key];
             const valueToRestore = originalValue === undefined ? "" : originalValue;
             return {
               formValues: {
