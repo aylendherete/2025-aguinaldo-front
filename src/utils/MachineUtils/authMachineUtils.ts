@@ -79,6 +79,14 @@ export const submitAuthentication = async ({ context }: AuthSubmitParams) => {
     });
   } else {
     // Register mode - RegisterRequestData interface requires all fields
+    const normalizeCoverageValue = (value: string | null) => {
+      if (!value) {
+        return null;
+      }
+      const trimmed = value.trim();
+      return trimmed.length ? trimmed.toUpperCase() : null;
+    };
+
     const registerData = {
       name: context.formValues.name,
       surname: context.formValues.surname,
@@ -92,6 +100,8 @@ export const submitAuthentication = async ({ context }: AuthSubmitParams) => {
       specialty: context.formValues.specialty,
       medicalLicense: context.formValues.medicalLicense,
       slotDurationMin: context.formValues.slotDurationMin,
+      healthInsurance: normalizeCoverageValue(context.formValues.healthInsurance),
+      healthPlan: normalizeCoverageValue(context.formValues.healthPlan),
     };
 
     if (context.isPatient) {

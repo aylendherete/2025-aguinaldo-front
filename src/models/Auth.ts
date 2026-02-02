@@ -11,6 +11,8 @@ export interface RegisterRequestData {
     specialty: string | null;
     medicalLicense: string | null;
     slotDurationMin?: number | null;
+    healthInsurance: string | null;
+    healthPlan: string | null;
   }
 
 export interface RegisterResponse {
@@ -60,4 +62,6 @@ export interface ProfileResponse{
   medicalLicense?:string | null;
   specialty?:string | null;
   slotDurationMin?: number | null;
+  healthInsurance?: string | null;
+  healthPlan?: string | null;
 }

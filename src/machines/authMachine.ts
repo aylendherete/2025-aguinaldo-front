@@ -42,6 +42,8 @@ export interface AuthMachineContext {
     specialty: string | null;
     medicalLicense: string | null;
     slotDurationMin?: number | null;
+    healthInsurance: string | null;
+    healthPlan: string | null;
   };
   formErrors?: {
     [key: string]: string;
@@ -72,7 +74,9 @@ export const AuthMachineDefaultContext = {
       phone: "", 
       specialty: null, 
       medicalLicense: null, 
-      slotDurationMin: null
+      slotDurationMin: null,
+      healthInsurance: null,
+      healthPlan: null
     },
     formErrors: {},
     authResponse: null,

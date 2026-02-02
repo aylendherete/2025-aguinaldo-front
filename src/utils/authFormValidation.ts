@@ -1,4 +1,5 @@
 import { dayjsArgentina, nowArgentina } from './dateTimeUtils';
+import { HEALTH_INSURANCE_LIST, HEALTH_INSURANCE_PLANS } from './healthCoverage';
 import type { AuthMachineContext } from "../machines/authMachine";
 
 
@@ -116,6 +117,30 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
   if (key.includes("gender")) {
     if (!["MALE", "FEMALE"].includes(value)) {
       return "Género debe ser Masculino o Femenino";
+    }
+    return "";
+  }
+
+  if (key.includes("healthInsurance")) {
+    const normalizedInsurance = value.toString().trim().toUpperCase();
+    if (!HEALTH_INSURANCE_LIST.includes(normalizedInsurance)) {
+      return "Obra social inválida";
+    }
+    return "";
+  }
+
+  if (key.includes("healthPlan")) {
+    const normalizedPlan = value.toString().trim().toUpperCase();
+    const insuranceValue = context.formValues?.healthInsurance;
+
+    if (!insuranceValue) {
+      return "Debe seleccionar una obra social";
+    }
+
+    const normalizedInsurance = insuranceValue.toString().trim().toUpperCase();
+    const plans = HEALTH_INSURANCE_PLANS[normalizedInsurance];
+    if (!plans || !plans.includes(normalizedPlan)) {
+      return "Plan inválido para la obra social";
     }
     return "";
   }
