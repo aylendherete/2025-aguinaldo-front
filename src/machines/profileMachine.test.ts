@@ -40,6 +40,8 @@ describe('profileMachine', () => {
     specialty: null,
     medicalLicense: null,
     slotDurationMin: null,
+    healthInsurance: 'OSDE',
+    healthPlan: '210',
   };
 
   beforeEach(() => {
@@ -166,6 +168,42 @@ describe('profileMachine', () => {
       expect(snapshot.context.formErrors.specialty).toBe('');
       expect(snapshot.context.formErrors.medicalLicense).toBe('');
       expect(snapshot.context.formErrors.slotDurationMin).toBe('');
+    });
+
+    it('should validate health insurance selection against catalog', () => {
+      actor = createActor(profileMachine);
+      actor.start();
+
+      actor.send({ type: 'UPDATE_FORM', key: 'healthInsurance', value: 'INVALID' });
+
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.context.formValues.healthInsurance).toBe('INVALID');
+      expect(snapshot.context.formErrors.healthInsurance).toBe('Obra social inválida');
+    });
+
+    it('should require selecting an insurance before choosing a plan', () => {
+      actor = createActor(profileMachine);
+      actor.start();
+
+      actor.send({ type: 'UPDATE_FORM', key: 'healthPlan', value: '210' });
+
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.context.formValues.healthPlan).toBe('210');
+      expect(snapshot.context.formErrors.healthPlan).toBe('Debe seleccionar una obra social');
+    });
+
+    it('should accept valid insurance and plan combination', () => {
+      actor = createActor(profileMachine);
+      actor.start();
+
+      actor.send({ type: 'UPDATE_FORM', key: 'healthInsurance', value: 'OSDE' });
+      actor.send({ type: 'UPDATE_FORM', key: 'healthPlan', value: '210' });
+
+      const snapshot = actor.getSnapshot();
+      expect(snapshot.context.formValues.healthInsurance).toBe('OSDE');
+      expect(snapshot.context.formValues.healthPlan).toBe('210');
+      expect(snapshot.context.formErrors.healthInsurance).toBe('');
+      expect(snapshot.context.formErrors.healthPlan).toBe('');
     });
 
     it('should set a validation error when field value is invalid', () => {
@@ -297,6 +335,8 @@ describe('profileMachine', () => {
         expect(snapshot.context.profile).toEqual(mockProfile);
         expect(snapshot.context.formValues.name).toBe(mockProfile.name);
         expect(snapshot.context.formValues.email).toBe(mockProfile.email);
+        expect(snapshot.context.formValues.healthInsurance).toBe(mockProfile.healthInsurance);
+        expect(snapshot.context.formValues.healthPlan).toBe(mockProfile.healthPlan);
         expect(snapshot.context.loading).toBe(false);
         expect(snapshot.context.formErrors).toEqual({});
       });
@@ -384,6 +424,8 @@ describe('profileMachine', () => {
       
       actor.send({ type: 'SET_AUTH', accessToken: 'token-123', userId: 'user-123' });
       actor.send({ type: 'UPDATE_FORM', key: 'name', value: 'Jane' });
+      actor.send({ type: 'UPDATE_FORM', key: 'healthInsurance', value: 'OSDE' });
+      actor.send({ type: 'UPDATE_FORM', key: 'healthPlan', value: '210' });
       actor.send({ type: 'UPDATE_PROFILE' });
 
       await vi.waitFor(() => {
@@ -399,6 +441,26 @@ describe('profileMachine', () => {
         message: 'Perfil actualizado exitosamente',
         severity: 'success'
       });
+    });
+
+    it('should send health coverage values when updating profile', async () => {
+      mockProfileUtils.updateProfile.mockResolvedValue(mockProfile);
+
+      actor = createActor(profileMachine);
+      actor.start();
+
+      actor.send({ type: 'SET_AUTH', accessToken: 'token-123', userId: 'user-123' });
+      actor.send({ type: 'UPDATE_FORM', key: 'healthInsurance', value: 'OSDE' });
+      actor.send({ type: 'UPDATE_FORM', key: 'healthPlan', value: '210' });
+      actor.send({ type: 'UPDATE_PROFILE' });
+
+      await vi.waitFor(() => {
+        expect(mockProfileUtils.updateProfile).toHaveBeenCalled();
+      });
+
+      const updateCall = mockProfileUtils.updateProfile.mock.calls[0][0];
+      expect(updateCall.formValues.healthInsurance).toBe('OSDE');
+      expect(updateCall.formValues.healthPlan).toBe('210');
     });
 
     it('should handle profile update error and show error snackbar', async () => {
