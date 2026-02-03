@@ -132,7 +132,9 @@ describe('authMachineUtils', () => {
           phone: '',
           specialty: null,
           medicalLicense: null,
-          slotDurationMin: null
+          slotDurationMin: null,
+          healthInsurance: null,
+          healthPlan: null
         },
         send: vi.fn()
       }
@@ -168,7 +170,9 @@ describe('authMachineUtils', () => {
           phone: '123456789',
           specialty: 'CARDIOLOGY',
           medicalLicense: 'LIC123',
-          slotDurationMin: 30
+          slotDurationMin: 30,
+          healthInsurance: 'OSDE',
+          healthPlan: '210'
         },
         send: vi.fn()
       }
@@ -189,7 +193,9 @@ describe('authMachineUtils', () => {
         phone: '123456789',
         specialty: 'CARDIOLOGY',
         medicalLicense: 'LIC123',
-        slotDurationMin: 30
+        slotDurationMin: 30,
+        healthInsurance: 'OSDE',
+        healthPlan: '210'
       })
       expect(result).toEqual(mockResponse)
     })
@@ -214,7 +220,9 @@ describe('authMachineUtils', () => {
           phone: '123456789',
           specialty: 'CARDIOLOGY',
           medicalLicense: 'LIC123',
-          slotDurationMin: 30
+          slotDurationMin: 30,
+          healthInsurance: 'OSDE',
+          healthPlan: '210'
         },
         send: vi.fn()
       }
@@ -235,7 +243,9 @@ describe('authMachineUtils', () => {
         phone: '123456789',
         specialty: 'CARDIOLOGY',
         medicalLicense: 'LIC123',
-        slotDurationMin: 30
+        slotDurationMin: 30,
+        healthInsurance: 'OSDE',
+        healthPlan: '210'
       })
       expect(result).toEqual(mockResponse)
     })
