@@ -51,6 +51,14 @@ export interface TurnResponse {
   fileUrl?: string | null;
   fileName?: string | null;
   uploadedAt?: string | null;
+  paymentRegister?: PaymentRegisterResponse | null;
+}
+
+export interface PaymentRegisterResponse {
+  paymentStatus?: string | null;
+  method?: string | null;
+  copayment?: number | null;
+  lastUpdateStatus?: string | null;
 }
 
 export interface ApiErrorResponse {

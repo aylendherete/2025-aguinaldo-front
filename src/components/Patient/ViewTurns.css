@@ -214,6 +214,34 @@
   color: #d97706 !important;
 }
 
+
+.patient-viewturns-payment-status-chip {
+  font-weight: 500 !important;
+}
+
+.patient-viewturns-payment-status-chip.payment-status-paid {
+  background: #dbf7d1 !important;
+  color: #047857 !important;
+}
+
+
+.patient-viewturns-payment-status-chip.payment-status-pending{
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+
+.patient-viewturns-payment-status-chip.payment-status-health-insurance{
+  background: #b6c1dd !important;
+  color: #101b70 !important;
+}
+
+.patient-viewturns-payment-status-chip.payment-status-bonus{
+  background: #f8fad1 !important;
+  color: #a86002 !important;
+}
+
+
 /* Cancel Button - matching PendingScreen reject button style */
 .viewturns-cancel-btn {
   background-color: #f55252 !important;
