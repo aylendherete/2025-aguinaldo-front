@@ -720,3 +720,29 @@
   }
 }
 }
+
+
+.doctor-viewturns-payment-status-chip {
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+
+.doctor-viewturns-payment-status-chip.payment-status-pending{
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.doctor-viewturns-payment-status-chip.payment-status-paid {
+  background: #dbf7d1 !important;
+  color: #047857 !important;
+}
+
+.doctor-viewturns-payment-status-chip.payment-status-health-insurance {
+  background: #b6c1dd !important;
+  color: #101b70 !important;
+}
+
+.doctor-viewturns-payment-status-chip.payment-status-bonus {
+  background: #f8fad1 !important;
+  color: #a86002 !important;
+}
