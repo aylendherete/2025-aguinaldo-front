@@ -12,6 +12,7 @@ import { medicalHistoryMachine, MEDICAL_HISTORY_MACHINE_ID, MEDICAL_HISTORY_MACH
 import { filesMachine, FILES_MACHINE_ID, FILES_MACHINE_EVENT_TYPES, type FilesMachineEvent } from '../machines/filesMachine';
 import { ratingMachine, RATING_MACHINE_ID, RATING_MACHINE_EVENT_TYPES } from '../machines/ratingMachine';
 import badgeMachine, { BADGE_MACHINE_ID, BADGE_MACHINE_EVENT_TYPES, type BadgeMachineEvent } from '../machines/badgeMachine';
+import { paymentRegisterMachine, PAYMENT_REGISTER_MACHINE_ID, PAYMENT_REGISTER_MACHINE_EVENT_TYPES, type PaymentRegisterMachineEvent } from '../machines/paymentRegisterMachine';
 
 interface MachineInstances {
     uiState: any;
@@ -34,6 +35,8 @@ interface MachineInstances {
     ratingSend: (event: any) => void;
     badgeState: any;
     badgeSend: (event: BadgeMachineEvent) => void;
+    paymentRegisterState: any;
+    paymentRegisterSend: (event: PaymentRegisterMachineEvent) => void;
 }
 
 interface MachineProviderProps {
@@ -108,6 +111,12 @@ orchestrator.registerMachine({
   eventTypes: BADGE_MACHINE_EVENT_TYPES
 });
 
+orchestrator.registerMachine({
+  id: PAYMENT_REGISTER_MACHINE_ID,
+  machine: paymentRegisterMachine,
+  eventTypes: PAYMENT_REGISTER_MACHINE_EVENT_TYPES
+});
+
 export const MachineProvider: React.FC<MachineProviderProps> = ({ children }) => {
   const { state: uiState, send: uiSend } = useStateMachine(UI_MACHINE_ID);
   const { state: turnState, send: turnSend } = useStateMachine(TURN_MACHINE_ID);
@@ -119,6 +128,7 @@ export const MachineProvider: React.FC<MachineProviderProps> = ({ children }) =>
   const { state: filesState, send: filesSend } = useStateMachine(FILES_MACHINE_ID);
   const { state: ratingState, send: ratingSend } = useStateMachine(RATING_MACHINE_ID);
   const { state: badgeState, send: badgeSend } = useStateMachine(BADGE_MACHINE_ID);
+  const { state: paymentRegisterState, send: paymentRegisterSend } = useStateMachine(PAYMENT_REGISTER_MACHINE_ID);
 
   const machines: MachineInstances = {
       uiState: uiState,
@@ -141,6 +151,8 @@ export const MachineProvider: React.FC<MachineProviderProps> = ({ children }) =>
       ratingSend: ratingSend,
       badgeState: badgeState,
       badgeSend: badgeSend,
+        paymentRegisterState: paymentRegisterState,
+        paymentRegisterSend: paymentRegisterSend,
   };
 
   return (

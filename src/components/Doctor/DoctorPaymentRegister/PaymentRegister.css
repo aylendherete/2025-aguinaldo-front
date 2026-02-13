@@ -1,0 +1,160 @@
+.paid-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.paid-summary-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.paid-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 163, 165, 0.15);
+  border-color: #38a3a5;
+}
+
+.paid-summary-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.paid-summary-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.paid-summary-icon-success {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.paid-summary-icon-info {
+  background: rgba(56, 189, 248, 0.18);
+}
+
+.paid-summary-icon-warning {
+  background: rgba(245, 158, 11, 0.18);
+}
+
+.paid-summary-icon-primary {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.paid-summary-card-title {
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.7rem !important;
+}
+
+.paid-summary-card-value {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  line-height: 1.3 !important;
+}
+
+.paid-summary-card-caption {
+  color: #94a3b8 !important;
+  font-size: 0.8rem !important;
+  margin-top: 6px !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .paid-summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+}
+.payment-input {
+  padding: 3px !important;
+  transition: all 0.2s ease !important;
+  color: #3b1f1e;
+}
+
+.payment-input .MuiFilledInput-root {
+  background: #fff7ed;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.payment-input .MuiFilledInput-root:hover {
+  background: #fff0db;
+  border-color: #f3b373;
+}
+
+.payment-input .MuiFilledInput-root.Mui-focused {
+  background: #ffe7d8;
+  border-color: #f3b373;
+  box-shadow: 0 0 0 3px rgba(246, 190, 59, 0.2);
+}
+
+.payment-input .MuiInputLabel-root {
+  color: #8b5e3c;
+}
+
+.payment-input .MuiInputLabel-root.Mui-focused {
+  color: #c25e00;
+}
+
+.payment-input .MuiFilledInput-input {
+  color: #3b1f1e;
+}
+
+.payment-input .MuiFilledInput-root:before,
+.payment-input .MuiFilledInput-root:after {
+  border-bottom: none;
+}
+
+.add-payment-register-btn {
+  color: #ffffff !important;
+  border-color: #c25e00 !important;
+  background: #c25e00 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.add-payment-register-btn:hover {
+  background: #0a1e3e !important;
+  border-color: #0c3a84 !important;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+}
+
+.loading-overlay-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.2);
+  color: #334155;
+  font-weight: 500;
+}

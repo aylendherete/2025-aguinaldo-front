@@ -12,6 +12,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LoadingThreeDotsJumping from "../../shared/PageLoadingScreen/LoadingThreeDots";
 import BadgeShowcase from "../../shared/Badges/BadgeShowcase";
 import type { TurnModifyRequest } from "#/models/TurnModifyRequest";
@@ -146,9 +147,20 @@ const DoctorDashboard: React.FC = () => {
               warning={!hasConfiguredDays && !isLoading}
             />
 
+
             <DashboardCard
               type="doctor"
               variant="primary"
+              icon= {<AccountBalanceWalletIcon className="doctor-action-icon" />}
+              title="Registro de Pagos"
+              description="Registra todos los pagos de tus turnos y lleva un control detallado"
+              buttonText="Ver Registro"
+              onClick={() => uiSend({ type: "NAVIGATE", to: "/doctor/payment-register" })}
+            />
+
+            <DashboardCard
+              type="doctor"
+              variant="secondary"
               icon={<BarChartIcon className="doctor-action-icon" />}
               title="Métricas"
               description="Ver estadísticas detalladas de tu actividad médica"

@@ -55,10 +55,25 @@ export interface TurnResponse {
 }
 
 export interface PaymentRegisterResponse {
+  id?: string | null;
+  turnId?: string | null;
+  paidAt?: string | null;
   paymentStatus?: string | null;
+  paymentAmount?: number | null;
   method?: string | null;
-  copayment?: number | null;
-  lastUpdateStatus?: string | null;
+  copaymentAmount?: number | null;
+}
+
+export interface PaymentRegisterRequest {
+  accessToken: string;
+  turnId: string;
+  payload: {
+    paymentStatus?: string | null;
+    method?: string | null;
+    paidAt?: string | null;
+    paymentAmount?: number | null;
+    copaymentAmount?: number | null;
+  };
 }
 
 export interface ApiErrorResponse {
