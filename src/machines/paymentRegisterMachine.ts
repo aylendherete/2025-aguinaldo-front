@@ -11,9 +11,21 @@ export const PAYMENT_REGISTER_MACHINE_EVENT_TYPES = [
   "UPDATE_PAYMENT_REGISTER", 
   "DEACTIVATE_ACCOUNT",
   "UPDATE_FORM",
+  "UPDATE_LOCAL_FORM",
+  "UPDATE_PERIOD",
+  "SET_SAVING_PAYMENT",
+  "SET_PAYMENT_ERROR",
+  "CLEAR_PAYMENT_ERROR",
   "INIT_PAYMENT_PAGE",
   "CLEAR_ERROR"
 ];
+
+export interface PaymentRegisterTurnForm {
+    paymentStatus: string;
+    method: string;
+    paymentAmount: string;
+    copaymentAmount: string;
+}
 
 export interface PaymentRegisterMachineContext {
   paymentRegister: PaymentRegisterResponse | null;
@@ -27,9 +39,16 @@ export interface PaymentRegisterMachineContext {
     paymentAmount: number | null;
     copaymentAmount: number | null;
   };
+    savingPaymentId: string | null;
+    errorByPaymentId: Record<string, string>;
+    formByPaymentId: Record<string, PaymentRegisterTurnForm>;
+    periodMonth: number;
+    periodYear: number;
   loading: boolean;
   error: string | null;
 }
+
+const now = new Date();
 
 export const PaymentRegisterMachineDefaultContext: PaymentRegisterMachineContext = {
   paymentRegister: null,
@@ -43,6 +62,11 @@ export const PaymentRegisterMachineDefaultContext: PaymentRegisterMachineContext
     paymentAmount: null,
     copaymentAmount: null,
   },
+    savingPaymentId: null,
+    errorByPaymentId: {},
+    formByPaymentId: {},
+    periodMonth: now.getMonth(),
+    periodYear: now.getFullYear(),
   loading: false,
   error: null,
 }
@@ -55,6 +79,11 @@ export type PaymentRegisterMachineEvent =
     | { type: "UPDATE_PAYMENT_REGISTER" }
     | { type: "DEACTIVATE_ACCOUNT" }
     | { type: "UPDATE_FORM"; key: string; value: any }
+    | { type: "UPDATE_LOCAL_FORM"; paymentId: string; updates: Partial<PaymentRegisterTurnForm> }
+    | { type: "UPDATE_PERIOD"; month?: number; year?: number }
+    | { type: "SET_SAVING_PAYMENT"; paymentId: string | null }
+    | { type: "SET_PAYMENT_ERROR"; paymentId: string; message: string }
+    | { type: "CLEAR_PAYMENT_ERROR"; paymentId: string }
     | { type: "INIT_PAYMENT_PAGE" }
     | { type: "CLEAR_ERROR" };
 
@@ -109,6 +138,74 @@ export const paymentRegisterMachine = createMachine({
                             formValues: updatedFormValues
                         }
                             
+                    })
+                },
+                UPDATE_LOCAL_FORM: {
+                    actions: assign(({ context, event }) => {
+                        const updateEvent = event as Extract<PaymentRegisterMachineEvent, { type: "UPDATE_LOCAL_FORM" }>;
+                        const updates = updateEvent.updates;
+                        const paymentId = updateEvent.paymentId;
+                        const previousForm = context.formByPaymentId[paymentId] || {
+                            paymentStatus: "PENDING",
+                            method: "",
+                            paymentAmount: "",
+                            copaymentAmount: "",
+                        };
+
+                        const lockedMethod = updates.paymentStatus === "BONUS"
+                            ? "BONUS"
+                            : updates.paymentStatus === "HEALTH INSURANCE"
+                                ? "HEALTH INSURANCE"
+                                : undefined;
+
+                        const nextForm = {
+                            ...previousForm,
+                            ...updates,
+                            ...(lockedMethod ? { method: lockedMethod } : {}),
+                            ...(updates.paymentStatus && updates.paymentStatus !== "HEALTH INSURANCE"
+                                ? { copaymentAmount: "" }
+                                : {})
+                        };
+
+                        return {
+                            formByPaymentId: {
+                                ...context.formByPaymentId,
+                                [paymentId]: nextForm,
+                            }
+                        };
+                    })
+                },
+                UPDATE_PERIOD: {
+                    actions: assign(({ context, event }) => ({
+                        periodMonth: event.month ?? context.periodMonth,
+                        periodYear: event.year ?? context.periodYear,
+                    }))
+                },
+                SET_SAVING_PAYMENT: {
+                    actions: assign(({ event }) => ({
+                        savingPaymentId: (event as { paymentId: string | null }).paymentId,
+                    }))
+                },
+                SET_PAYMENT_ERROR: {
+                    actions: assign(({ context, event }) => {
+                        const errorEvent = event as { paymentId: string; message: string };
+                        return {
+                            errorByPaymentId: {
+                                ...context.errorByPaymentId,
+                                [errorEvent.paymentId]: errorEvent.message,
+                            }
+                        };
+                    })
+                },
+                CLEAR_PAYMENT_ERROR: {
+                    actions: assign(({ context, event }) => {
+                        const clearEvent = event as { paymentId: string };
+                        return {
+                            errorByPaymentId: {
+                                ...context.errorByPaymentId,
+                                [clearEvent.paymentId]: "",
+                            }
+                        };
                     })
                 },
                 CLEAR_ERROR:{

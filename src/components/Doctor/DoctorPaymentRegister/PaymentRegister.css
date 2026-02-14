@@ -36,15 +36,11 @@
   background: rgba(59, 130, 246, 0.12);
 }
 
-.paid-summary-icon-success {
+.paid-summary-icon-total {
   background: rgba(16, 185, 129, 0.15);
 }
 
 .paid-summary-icon-info {
-  background: rgba(56, 189, 248, 0.18);
-}
-
-.paid-summary-icon-warning {
   background: rgba(245, 158, 11, 0.18);
 }
 
@@ -158,3 +154,14 @@
   color: #334155;
   font-weight: 500;
 }
+ .total-billed-card {
+  background:#09437d4d;
+ }
+
+ .total-payment-card{
+    background:#06996f4d;
+ }
+
+    .info-count-card{
+        background:#e0b96b4d;
+    }

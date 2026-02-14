@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { Avatar, Box, Typography,Card,CardContent,Button,TextField,MenuItem,CircularProgress} from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { AccountBalanceWalletOutlined,PaidOutlined,LocalHospitalOutlined,ReceiptLongOutlined,
-PendingActionsOutlined,SummarizeOutlined,EventNoteOutlined,LocalAtm } from '@mui/icons-material';
+PendingActionsOutlined,SummarizeOutlined,EventNoteOutlined,LocalAtm,PriceCheck } from '@mui/icons-material';
 import { useMachines } from "#/providers/MachineProvider";
 import { useDataMachine } from "#/providers/DataProvider";
 import { dayjsArgentina, nowArgentina } from "#/utils/dateTimeUtils";
 import { PaymentRegisterService } from "../../../service/payment-register.service";
 import "./PaymentRegister.css";
+import {getMonthLabel,currencyFormatter,getMethodLabel,getPaymentRegisterYears,getPaymentRegisterMonths,getPeriodTurns,buildPaymentSummary,validatePaymentForm,buildPaymentUpdatePayload,} from "#/utils/paymentRegisterUtils";
 
 const PaymentRegister: React.FC = () => {
     const { paymentRegisterState, paymentRegisterSend } = useMachines();
@@ -19,250 +20,58 @@ const PaymentRegister: React.FC = () => {
     const paymentRegisterContext = paymentRegisterState.context;
 
     const currentDate = nowArgentina();
-    const [selectedMonth, setSelectedMonth] = useState<number>(currentDate.month());
-    const [selectedYear, setSelectedYear] = useState<number>(currentDate.year());
-    const [savingTurnId, setSavingTurnId] = useState<string | null>(null);
-    const [errorByTurnId, setErrorByTurnId] = useState<Record<string, string>>({});
-    const [formByTurnId, setFormByTurnId] = useState<Record<string, {
-        paymentStatus: string;
-        method: string;
-        paymentAmount: string;
-        copaymentAmount: string;
-    }>>({});
+    const selectedMonth = paymentRegisterContext.periodMonth ?? currentDate.month();
+    const selectedYear = paymentRegisterContext.periodYear ?? currentDate.year();
+    const years = getPaymentRegisterYears(turns, currentDate.year());
+    const months = getPaymentRegisterMonths(turns, selectedYear, currentDate.month())
+        .map((month) => ({ value: month, label: getMonthLabel(month, selectedYear) }));
 
-    const monthFormatter = new Intl.DateTimeFormat("es-AR", { month: "long" });
-
-
-    const getMonthLabel= (monthIndex:number)=>{
-        const label=monthFormatter.format(new Date(selectedYear, monthIndex, 1));
-        return label.charAt(0).toUpperCase() + label.slice(1);
-    }
-
-    const years = (() => {
-        const yearSet = new Set<number>();
-        turns.forEach((turn: any) => {
-            if (turn?.scheduledAt) {
-                yearSet.add(dayjsArgentina(turn.scheduledAt).year());
-            }
-            const paidAt = turn?.paymentRegister?.paidAt;
-            if (paidAt) {
-                yearSet.add(dayjsArgentina(paidAt).year());
-            }
-        });
-        if (yearSet.size === 0) {
-            yearSet.add(currentDate.year());
-        }
-        return Array.from(yearSet).sort((a, b) => b - a);
-    })();
-
-    const months =  (() => {
-        const monthSet = new Set<number>();
-        turns.forEach((turn: any) => {
-            if (turn?.scheduledAt) {
-                const date = dayjsArgentina(turn.scheduledAt);
-                if (date.year() === selectedYear) {
-                    monthSet.add(date.month());
-                }
-            }
-            const paidAt = turn?.paymentRegister?.paidAt;
-            if (paidAt) {
-                const date = dayjsArgentina(paidAt);
-                if (date.year() === selectedYear) {
-                    monthSet.add(date.month());
-                }
-            }
-        });
-        if (monthSet.size === 0) {
-            monthSet.add(currentDate.month());
-        }
-        return Array.from(monthSet)
-            .sort((a, b) => a - b)
-            .map((month) => ({ value: month, label: getMonthLabel(month) }));
-    })();
-
-    const periodTurns = turns.filter((turn: any) => {
-        const payment = turn?.paymentRegister;
-        const status = payment?.paymentStatus;
-        const paidAt = payment?.paidAt;
-        const baseDate = status && status !== "PENDING" && paidAt ? paidAt : turn?.scheduledAt;
-
-        if (!baseDate) {
-            return false;
-        }
-
-        const turnDate = dayjsArgentina(baseDate);
-        return turnDate.month() === selectedMonth && turnDate.year() === selectedYear;
-    });
-
+    const periodTurns = getPeriodTurns(turns, selectedMonth, selectedYear);
     const paymentTurns = periodTurns.filter((turn: any) => turn.paymentRegister);
+    const summary = buildPaymentSummary(periodTurns);
 
-    const summary = (() => {
-        const totals = {
-            totalBilled: 0,
-            totalCollected: 0,
-            totalCopayment: 0,
-            totalCovered: 0,
-            totalPayments: 0,
-            pendingCount: 0,
-            paidCount: 0,
-            healthInsuranceCount: 0,
-            bonusCount: 0,
-            completedCount: 0,
-            canceledCount: 0
-        };
-
-        periodTurns.forEach((turn: any) => {
-            if (turn.status === "COMPLETED") {
-                totals.completedCount += 1;
-            }
-            if (turn.status === "CANCELED" || turn.status === "CANCELLED") {
-                totals.canceledCount += 1;
-            }
-
-            const payment = turn.paymentRegister;
-            if (!payment) {
-                return;
-            }
-
-            totals.totalPayments += 1;
-
-            const paymentAmount = Number(payment.paymentAmount ?? 0);
-            const copaymentAmount = Number(payment.copaymentAmount ?? 0);
-            const status = payment.paymentStatus;
-
-            totals.totalBilled += paymentAmount;
-            totals.totalCopayment += copaymentAmount;
-
-            if (status && status !== "PENDING" && payment.method !== "BONUS" && payment.method !== "HEALTH INSURANCE") {
-                totals.totalCollected += paymentAmount;
-            }
-
-            if (status === "HEALTH INSURANCE") {
-                totals.healthInsuranceCount += 1;
-                const covered = paymentAmount - copaymentAmount;
-                totals.totalCovered += covered > 0 ? covered : 0;
-            }
-
-            if (status === "PENDING") {
-                totals.pendingCount += 1;
-            }
-
-            if (status === "PAID") {
-                totals.paidCount += 1;
-            }
-
-            if (status === "BONUS") {
-                totals.bonusCount += 1;
-            }
-        });
-
-        return totals;
-    })();
-
-    const currencyFormatter = (amount: number ) => {
-        return new Intl.NumberFormat("es-AR", {style: "currency",currency: "ARS",maximumFractionDigits: 2}).format(amount);
-    };
 
     const handleUpdateForm = (turnId: string, updates: Partial<{ paymentStatus: string; method: string; paymentAmount: string; copaymentAmount: string; }>) => {
-        const lockedMethod = updates.paymentStatus === "BONUS"
-            ? "BONUS"
-            : updates.paymentStatus === "HEALTH INSURANCE"
-                ? "HEALTH INSURANCE"
-                : undefined;
-
-        setFormByTurnId((prev) => ({
-            ...prev,
-            [turnId]: {
-                paymentStatus: prev[turnId]?.paymentStatus ?? "PAID",
-                method: prev[turnId]?.method ?? "CASH",
-                paymentAmount: prev[turnId]?.paymentAmount ?? "",
-                copaymentAmount: prev[turnId]?.copaymentAmount ?? "",
-                ...updates,
-                ...(lockedMethod ? { method: lockedMethod } : {}),
-                ...(updates.paymentStatus && updates.paymentStatus !== "HEALTH INSURANCE"
-                    ? { copaymentAmount: "" }
-                    : {})
-            }
-        }));
+        paymentRegisterSend({ type: "UPDATE_LOCAL_FORM", paymentId: turnId, updates });
     };
 
     const handleSavePayment = async (turnId: string) => {
         if (!accessToken) {
-            setErrorByTurnId((prev) => ({ ...prev, [turnId]: "Sesión expirada. Volvé a iniciar sesión." }));
+            paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message: "Sesión expirada. Volvé a iniciar sesión." });
             return;
         }
         
-        const form = formByTurnId[turnId];
-        if (!form) {
-            setErrorByTurnId((prev) => ({ ...prev, [turnId]: "Completá los datos del pago." }));
+        const form = paymentRegisterContext.formByPaymentId[turnId];
+        const validationError = validatePaymentForm(form);
+        if (validationError) {
+            paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message: validationError });
             return;
         }
 
-        if (!form.paymentStatus || form.paymentStatus === "PENDING") {
-            setErrorByTurnId((prev) => ({ ...prev, [turnId]: "Seleccioná un estado de pago válido." }));
-            return;
-        }
-
-        if (!form.method) {
-            setErrorByTurnId((prev) => ({ ...prev, [turnId]: "Seleccioná un medio de pago." }));
-            return;
-        }
-
-        if (!form.paymentAmount) {
-            setErrorByTurnId((prev) => ({ ...prev, [turnId]: "Ingresá el monto abonado." }));
-            return;
-        }
-
-        setSavingTurnId(turnId);
-        setErrorByTurnId((prev) => ({ ...prev, [turnId]: "" }));
+        paymentRegisterSend({ type: "UPDATE_PAYMENT_REGISTER"})
+        paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: turnId });
+        paymentRegisterSend({ type: "CLEAR_PAYMENT_ERROR", paymentId: turnId });
 
         const paidAtValue = new Date().toISOString();
-        const copaymentValue = form.paymentStatus === "HEALTH INSURANCE" && form.copaymentAmount !== ""
-            ? Number(form.copaymentAmount)
-            : null;
+        const payload = buildPaymentUpdatePayload(form!, paidAtValue);
 
         try {
             await PaymentRegisterService.updatePaymentRegister({
                 accessToken,
                 turnId,
-                payload: {
-                    paymentStatus: form.paymentStatus,
-                    method: form.method,
-                    paymentAmount: Number(form.paymentAmount),
-                    copaymentAmount: copaymentValue,
-                    paidAt: paidAtValue,
-                },
+                payload,
             });
 
             dataSend({ type: "LOAD_MY_TURNS" });
             paymentRegisterSend({ type: "LOAD_PAYMENT_REGISTER" });
         } catch (error) {
             const message = error instanceof Error ? error.message : "Error al registrar el pago";
-            setErrorByTurnId((prev) => ({ ...prev, [turnId]: message }));
+            paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message });
         } finally {
-            setSavingTurnId(null);
+            paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: null });
         }
     };
 
-    const getMethodLabel = (method: string) => {
-        switch (method) {
-            case "CASH":
-                return "Efectivo";
-            case "CREDIT CARD":
-                return "Tarjeta de crédito";
-            case "DEBIT_CARD":
-                return "Tarjeta de débito";
-            case "ONLINE_PAYMENT":
-                return "Pago online";
-            case "TRANSFER":
-                return "Transferencia";
-            case "BONUS":
-                return "Bonificado";
-            case "HEALTH_INSURANCE":
-                return "Obra social";
-                                                   
-        }  return method || "Sin registrar";   
-    }
     
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -305,7 +114,7 @@ const PaymentRegister: React.FC = () => {
                             label="Mes"
                             size="small"
                             value={selectedMonth}
-                            onChange={(event) => setSelectedMonth(Number(event.target.value))}
+                            onChange={(event) => paymentRegisterSend({ type: "UPDATE_PERIOD", month: Number(event.target.value) })}
                             sx={{ minWidth: 160 }}
                         >
                             {months.map((month) => (
@@ -319,7 +128,7 @@ const PaymentRegister: React.FC = () => {
                             label="Año"
                             size="small"
                             value={selectedYear}
-                            onChange={(event) => setSelectedYear(Number(event.target.value))}
+                            onChange={(event) => paymentRegisterSend({ type: "UPDATE_PERIOD", year: Number(event.target.value) })}
                             sx={{ minWidth: 120 }}
                         >
                             {years.map((year) => (
@@ -331,7 +140,7 @@ const PaymentRegister: React.FC = () => {
                     </Box>
 
                     <Box className="paid-summary-grid">
-                        <Box className="paid-summary-card">
+                        <Box className="paid-summary-card total-billed-card">
                             <Box className="paid-summary-card-header">
                                 <Box className="paid-summary-card-icon">
                                     <SummarizeOutlined color="primary" />
@@ -346,22 +155,46 @@ const PaymentRegister: React.FC = () => {
                             </Typography>
                         </Box>
 
-                        <Box className="paid-summary-card">
+                        <Box className="paid-summary-card total-payment-card">
                             <Box className="paid-summary-card-header">
-                                <Box className="paid-summary-card-icon paid-summary-icon-success">
+                                <Box className="paid-summary-card-icon paid-summary-icon-total">
+                                    <PaidOutlined color="success" />
+                                </Box>
+                                <Typography className="paid-summary-card-title">Total cobrado</Typography>
+                            </Box>
+                            <Typography className="paid-summary-card-value">
+                                {currencyFormatter(summary.totalCollected)}
+                            </Typography>
+                        </Box>
+
+                        <Box className="paid-summary-card total-payment-card">
+                            <Box className="paid-summary-card-header">
+                                <Box className="paid-summary-card-icon paid-summary-icon-total">
                                     <ReceiptLongOutlined color="success" />
                                 </Box>
-                                <Typography className="paid-summary-card-title">Copago total</Typography>
+                                <Typography className="paid-summary-card-title">Copago total (Obra Social)</Typography>
                             </Box>
                             <Typography className="paid-summary-card-value">
                                 {currencyFormatter(summary.totalCopayment)}
                             </Typography>
                         </Box>
 
-                        <Box className="paid-summary-card">
+                        <Box className="paid-summary-card total-payment-card">
                             <Box className="paid-summary-card-header">
-                                <Box className="paid-summary-card-icon paid-summary-icon-info">
-                                    <LocalHospitalOutlined color="info" />
+                                <Box className="paid-summary-card-icon paid-summary-icon-total">
+                                    <PriceCheck color="success" />
+                                </Box>
+                                <Typography className="paid-summary-card-title">Bonificación total </Typography>
+                            </Box>
+                            <Typography className="paid-summary-card-value">
+                                {currencyFormatter(summary.totalBonus)}
+                            </Typography>
+                        </Box>
+
+                        <Box className="paid-summary-card total-payment-card">
+                            <Box className="paid-summary-card-header">
+                                <Box className="paid-summary-card-icon paid-summary-icon-total">
+                                    <LocalHospitalOutlined color="success" />
                                 </Box>
                                 <Typography className="paid-summary-card-title">Cubierto por obra social</Typography>
                             </Box>
@@ -373,33 +206,26 @@ const PaymentRegister: React.FC = () => {
                             </Typography>
                         </Box>
 
-                        <Box className="paid-summary-card">
-                            <Box className="paid-summary-card-header">
-                                <Box className="paid-summary-card-icon paid-summary-icon-success">
-                                    <PaidOutlined color="success" />
-                                </Box>
-                                <Typography className="paid-summary-card-title">Total cobrado</Typography>
-                            </Box>
-                            <Typography className="paid-summary-card-value">
-                                {currencyFormatter(summary.totalCollected)}
-                            </Typography>
-                        </Box>
+                        
 
-                        <Box className="paid-summary-card">
+                        <Box className="paid-summary-card info-count-card">
                             <Box className="paid-summary-card-header">
-                                <Box className="paid-summary-card-icon paid-summary-icon-primary">
-                                    <PaidOutlined color="success" />
+                                <Box className="paid-summary-card-icon paid-summary-icon-info">
+                                    <AccountBalanceWalletOutlined color="warning" />
                                 </Box>
                                 <Typography className="paid-summary-card-title">Pagos registrados</Typography>
                             </Box>
                             <Typography className="paid-summary-card-value">
                                 {summary.totalPayments}
                             </Typography>
+                            <Typography className="paid-summary-card-caption">
+                                {summary.paidCount} pagado(s) · {summary.bonusCount} bonificado(s) · {summary.healthInsuranceCount} obra social
+                            </Typography>
                         </Box>
 
-                        <Box className="paid-summary-card">
+                        <Box className="paid-summary-card info-count-card">
                             <Box className="paid-summary-card-header">
-                                <Box className="paid-summary-card-icon paid-summary-icon-warning">
+                                <Box className="paid-summary-card-icon paid-summary-icon-info">
                                     <PendingActionsOutlined color="warning" />
                                 </Box>
                                 <Typography className="paid-summary-card-title">Pagos pendientes</Typography>
@@ -409,20 +235,18 @@ const PaymentRegister: React.FC = () => {
                             </Typography>
                         </Box>
 
-                        <Box className="paid-summary-card">
-                            <Box className="paid-summary-card-header">
-                                <Box className="paid-summary-card-icon paid-summary-icon-primary">
-                                    <AccountBalanceWalletOutlined color="primary" />
-                                </Box>
-                                <Typography className="paid-summary-card-title">Pagos completados</Typography>
+
+                        <Box className="paid-summary-card info-count-card">
+                        <Box className="paid-summary-card-header">
+                            <Box className="paid-summary-card-icon paid-summary-icon-info">
+                                <PaidOutlined color="warning" />
                             </Box>
-                            <Typography className="paid-summary-card-value">
-                                {summary.paidCount + summary.bonusCount}
-                            </Typography>
-                            <Typography className="paid-summary-card-caption">
-                                {summary.paidCount} pagado(s) · {summary.bonusCount} bonificado(s)
-                            </Typography>
+                            <Typography className="paid-summary-card-title">Cantidad de pagos por cobrar</Typography>
                         </Box>
+                        <Typography className="paid-summary-card-value">
+                            {summary.totalAccountsReceivable}
+                        </Typography>
+                    </Box>
                     </Box>
 
                     <Box display="flex" flexDirection="column" gap={2}>
@@ -430,9 +254,9 @@ const PaymentRegister: React.FC = () => {
                         {paymentTurns.map((turn: any) => {
                             const payment = turn.paymentRegister;
                             const paymentStatus = payment?.paymentStatus || "PENDING";
-                            const formState = formByTurnId[turn.id] || {
-                                paymentStatus: paymentStatus === "PENDING" ? "PAID" : paymentStatus,
-                                method: payment?.method || "CASH",
+                            const formState = paymentRegisterContext.formByPaymentId[turn.id] || {
+                                paymentStatus,
+                                method: payment?.method || "",
                                 paymentAmount: payment?.paymentAmount != null ? String(payment.paymentAmount) : "",
                                 copaymentAmount: payment?.copaymentAmount != null ? String(payment.copaymentAmount) : ""
                             };
@@ -493,6 +317,9 @@ const PaymentRegister: React.FC = () => {
                                                     className="payment-input"
                                                     sx={{ minWidth: 200 }}
                                                 >
+                                                    <MenuItem value="PENDING" disabled>
+                                                        Seleccioná estado
+                                                    </MenuItem>
                                                     <MenuItem value="PAID">Pagado</MenuItem>
                                                     <MenuItem value="HEALTH INSURANCE">Obra social</MenuItem>
                                                     <MenuItem value="BONUS">Bonificado</MenuItem>
@@ -508,6 +335,7 @@ const PaymentRegister: React.FC = () => {
                                                     sx={{ minWidth: 200 }}
                                                     disabled={formState.paymentStatus === "BONUS" || formState.paymentStatus === "HEALTH INSURANCE"}
                                                 >
+                                                    <MenuItem value="" disabled>Seleccioná medio</MenuItem>
                                                     <MenuItem value="CASH">Efectivo</MenuItem>
                                                     <MenuItem value="CREDIT CARD">Tarjeta de crédito</MenuItem>
                                                     <MenuItem value="DEBIT CARD">Tarjeta de débito</MenuItem>
@@ -542,18 +370,18 @@ const PaymentRegister: React.FC = () => {
                                                     variant="contained"
                                                     onClick={() => handleSavePayment(turn.id)}
                                                     endIcon={<LocalAtm />}
-                                                    disabled={savingTurnId === turn.id}
+                                                    disabled={paymentRegisterContext.savingPaymentId === turn.id}
                                                     className="add-payment-register-btn"
                                                 >
-                                                    {savingTurnId === turn.id ? (
+                                                    {paymentRegisterContext.savingPaymentId === turn.id ? (
                                                         <CircularProgress size={18} color="inherit" />
                                                     ) : (
                                                         "Registrar pago"
                                                     )}
                                                 </Button>
-                                                {errorByTurnId[turn.id] && (
+                                                {paymentRegisterContext.errorByPaymentId[turn.id] && (
                                                     <Typography variant="body2" color="error">
-                                                        {errorByTurnId[turn.id]}
+                                                        {paymentRegisterContext.errorByPaymentId[turn.id]}
                                                     </Typography>
                                                 )}
                                             </Box>

@@ -1,0 +1,216 @@
+import { dayjsArgentina } from "./dateTimeUtils";
+
+const monthFormatter = new Intl.DateTimeFormat("es-AR", { month: "long" });
+
+export interface PaymentFormInput {
+    paymentStatus: string;
+    method: string;
+    paymentAmount: string;
+    copaymentAmount: string;
+}
+
+export const getMonthLabel= (monthIndex:number,selectedYear:number)=>{
+        const label=monthFormatter.format(new Date(selectedYear, monthIndex, 1));
+        return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+
+
+export const currencyFormatter = (amount: number ) => {
+        return new Intl.NumberFormat("es-AR", {style: "currency",currency: "ARS",maximumFractionDigits: 2}).format(amount);
+    };
+
+export const getMethodLabel = (method: string) => {
+        switch (method) {
+            case "CASH":
+                return "Efectivo";
+            case "CREDIT CARD":
+                return "Tarjeta de crédito";
+            case "DEBIT_CARD":
+                return "Tarjeta de débito";
+            case "ONLINE_PAYMENT":
+                return "Pago online";
+            case "TRANSFER":
+                return "Transferencia";
+            case "BONUS":
+                return "Bonificado";
+            case "HEALTH_INSURANCE":
+                return "Obra social";
+                                                   
+        }  return method || "Sin registrar";   
+    }
+
+export const getPaymentRegisterYears = (turns: any[], currentYear: number): number[] => {
+    const yearSet = new Set<number>();
+
+    turns.forEach((turn: any) => {
+        if (turn?.scheduledAt) {
+            yearSet.add(dayjsArgentina(turn.scheduledAt).year());
+        }
+        const paidAt = turn?.paymentRegister?.paidAt;
+        if (paidAt) {
+            yearSet.add(dayjsArgentina(paidAt).year());
+        }
+    });
+
+    if (yearSet.size === 0) {
+        yearSet.add(currentYear);
+    }
+
+    return Array.from(yearSet).sort((a, b) => b - a);
+};
+
+export const getPaymentRegisterMonths = (
+    turns: any[],
+    selectedYear: number,
+    currentMonth: number,
+) => {
+    const monthSet = new Set<number>();
+
+    turns.forEach((turn: any) => {
+        if (turn?.scheduledAt) {
+            const date = dayjsArgentina(turn.scheduledAt);
+            if (date.year() === selectedYear) {
+                monthSet.add(date.month());
+            }
+        }
+
+        const paidAt = turn?.paymentRegister?.paidAt;
+        if (paidAt) {
+            const date = dayjsArgentina(paidAt);
+            if (date.year() === selectedYear) {
+                monthSet.add(date.month());
+            }
+        }
+    });
+
+    if (monthSet.size === 0) {
+        monthSet.add(currentMonth);
+    }
+
+    return Array.from(monthSet).sort((a, b) => a - b);
+};
+
+export const getPeriodTurns = (turns: any[], selectedMonth: number, selectedYear: number) => {
+    return turns.filter((turn: any) => {
+        const payment = turn?.paymentRegister;
+        const status = payment?.paymentStatus;
+        const paidAt = payment?.paidAt;
+        const baseDate = status && status !== "PENDING" && paidAt ? paidAt : turn?.scheduledAt;
+
+        if (!baseDate) {
+            return false;
+        }
+
+        const turnDate = dayjsArgentina(baseDate);
+        return turnDate.month() === selectedMonth && turnDate.year() === selectedYear;
+    });
+};
+
+export const buildPaymentSummary = (periodTurns: any[]) => {
+    const totals = {
+        totalBilled: 0,
+        totalCollected: 0,
+        totalCopayment: 0,
+        totalCovered: 0,
+        totalPayments: 0,
+        pendingCount: 0,
+        paidCount: 0,
+        healthInsuranceCount: 0,
+        bonusCount: 0,
+        completedCount: 0,
+        canceledCount: 0,
+        totalBonus:0,
+        totalAccountsReceivable:0,
+    };
+
+    periodTurns.forEach((turn: any) => {
+        if (turn.status === "COMPLETED") {
+            totals.completedCount += 1;
+        }
+        if (turn.status === "CANCELED" || turn.status === "CANCELLED") {
+            totals.canceledCount += 1;
+        }
+
+        const payment = turn.paymentRegister;
+        if (!payment) {
+            return;
+        }
+        
+
+        const paymentAmount = Number(payment.paymentAmount ?? 0);
+        const copaymentAmount = Number(payment.copaymentAmount ?? 0);
+        const status = payment.paymentStatus;
+
+        totals.totalBilled += paymentAmount;
+        totals.totalCopayment += copaymentAmount;
+
+        if(status != "PENDING"){
+            totals.totalPayments += 1;
+        }
+
+        if (status && status !== "PENDING" && payment.method !== "BONUS" && payment.method !== "HEALTH INSURANCE") {
+            totals.totalCollected += paymentAmount;
+        }
+
+
+        if (status === "HEALTH INSURANCE") {
+            totals.healthInsuranceCount += 1;
+            const covered = paymentAmount - copaymentAmount;
+            totals.totalCovered += covered > 0 ? covered : 0;
+        }
+
+        if (status === "PENDING" && turn.status === "COMPLETED") {
+            totals.pendingCount += 1;
+        }
+
+        if (status === "PAID") {
+            totals.paidCount += 1;
+        }
+
+        if (status === "BONUS") {
+            totals.bonusCount += 1;
+            totals.totalBonus += paymentAmount;
+        }
+
+        if (status==="PENDING"){
+            totals.totalAccountsReceivable+=1;
+        }
+    });
+
+    return totals;
+};
+
+export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
+    if (!form) {
+        return "Completá los datos del pago.";
+    }
+
+    if (!form.paymentStatus || form.paymentStatus === "PENDING") {
+        return "Seleccioná un estado de pago válido.";
+    }
+
+    if (!form.method) {
+        return "Seleccioná un medio de pago.";
+    }
+
+    if (!form.paymentAmount) {
+        return "Ingresá el monto abonado.";
+    }
+
+    return null;
+};
+
+export const buildPaymentUpdatePayload = (form: PaymentFormInput, paidAt: string) => {
+    const copaymentValue = form.paymentStatus === "HEALTH INSURANCE" && form.copaymentAmount !== ""
+        ? Number(form.copaymentAmount)
+        : null;
+
+    return {
+        paymentStatus: form.paymentStatus,
+        method: form.method,
+        paymentAmount: Number(form.paymentAmount),
+        copaymentAmount: copaymentValue,
+        paidAt,
+    };
+};
