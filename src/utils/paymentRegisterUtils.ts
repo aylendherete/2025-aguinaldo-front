@@ -164,7 +164,10 @@ export const buildPaymentSummary = (periodTurns: any[]) => {
             totals.totalPayments += 1;
         }
 
-        if (status && status !== "PENDING" && payment.method !== "BONUS" && payment.method !== "HEALTH INSURANCE") {
+        const isBonusMethod = payment.method === "BONUS";
+        const isHealthInsuranceMethod = payment.method === "HEALTH INSURANCE" || payment.method === "HEALTH_INSURANCE";
+
+        if (status && status !== "PENDING" && !isBonusMethod && !isHealthInsuranceMethod) {
             totals.totalCollected += paymentAmount;
         }
 
