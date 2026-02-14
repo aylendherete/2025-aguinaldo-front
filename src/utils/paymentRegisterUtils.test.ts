@@ -143,6 +143,9 @@ describe('paymentRegisterUtils', () => {
     expect(validatePaymentForm({ paymentStatus: 'PAID', method: '', paymentAmount: '', copaymentAmount: '' })).toBe('Seleccioná un medio de pago.')
     expect(validatePaymentForm({ paymentStatus: 'PAID', method: 'CASH', paymentAmount: '', copaymentAmount: '' })).toBe('Ingresá el monto abonado.')
     expect(validatePaymentForm({ paymentStatus: 'PAID', method: 'CASH', paymentAmount: '10', copaymentAmount: '' })).toBeNull()
+    expect(validatePaymentForm({ paymentStatus: 'HEALTH INSURANCE', method: 'HEALTH INSURANCE', paymentAmount: '100', copaymentAmount: '100' })).toBeNull()
+    expect(validatePaymentForm({ paymentStatus: 'HEALTH INSURANCE', method: 'HEALTH INSURANCE', paymentAmount: '100', copaymentAmount: '120' })).toBe('El copago debe ser menor o igual al monto abonado.')
+    expect(validatePaymentForm({ paymentStatus: 'HEALTH INSURANCE', method: 'HEALTH INSURANCE', paymentAmount: '100', copaymentAmount: '20' })).toBeNull()
   })
 
   it('buildPaymentUpdatePayload maps numeric values and copayment rule', () => {

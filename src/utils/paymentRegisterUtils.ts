@@ -235,6 +235,23 @@ export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
         return "Ingresá el monto abonado.";
     }
 
+    const paymentAmount = Number(form.paymentAmount);
+    if (Number.isNaN(paymentAmount)) {
+        return "Ingresá un monto abonado válido.";
+    }
+
+    if (form.paymentStatus === "HEALTH INSURANCE" && form.copaymentAmount !== "") {
+        const copaymentAmount = Number(form.copaymentAmount);
+
+        if (Number.isNaN(copaymentAmount)) {
+            return "Ingresá un copago válido.";
+        }
+
+        if (copaymentAmount > paymentAmount) {
+            return "El copago debe ser menor o igual al monto abonado.";
+        }
+    }
+
     return null;
 };
 
