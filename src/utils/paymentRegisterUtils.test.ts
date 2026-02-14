@@ -203,4 +203,20 @@ describe('paymentRegisterUtils', () => {
     expect(vm.canDeletePayment).toBe(true)
     expect(vm.canEditPayment).toBe(false)
   })
+
+  it('buildPaymentTurnViewModel does not allow deleting when turn is not COMPLETED', () => {
+    const turn = {
+      status: 'SCHEDULED',
+      paymentRegister: {
+        paymentStatus: 'PAID',
+        method: 'CASH',
+        paymentAmount: 120,
+        copaymentAmount: 0,
+      },
+    }
+
+    const vm = buildPaymentTurnViewModel(turn)
+    expect(vm.canDeletePayment).toBe(false)
+    expect(vm.canEditPayment).toBe(false)
+  })
 })
