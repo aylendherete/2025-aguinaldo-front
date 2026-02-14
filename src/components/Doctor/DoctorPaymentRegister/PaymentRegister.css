@@ -177,3 +177,25 @@
   box-shadow: 0 4px 12px rgba(165, 134, 56, 0.15);
   border-color: #e0b96b;
 }
+
+.payment-register-card-canceled {
+  border: 1px dashed #c2410c !important;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+.payment-register-canceled-badge {
+  display: inline-flex;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: #9a3412;
+  background: #ffedd5;
+  border: 1px solid #fdba74;
+}
+
+.payment-register-canceled-info {
+  width: 100%;
+  color: #9a3412;
+  font-weight: 600 !important;
+}

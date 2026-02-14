@@ -3,13 +3,13 @@ import { Avatar, Box, Typography,Card,CardContent,Button,TextField,MenuItem,Circ
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { AccountBalanceWalletOutlined,PaidOutlined,LocalHospitalOutlined,ReceiptLongOutlined,
-PendingActionsOutlined,SummarizeOutlined,EventNoteOutlined,LocalAtm,PriceCheck } from '@mui/icons-material';
+PendingActionsOutlined,SummarizeOutlined,EventNoteOutlined,LocalAtm,PriceCheck,DeleteOutline } from '@mui/icons-material';
 import { useMachines } from "#/providers/MachineProvider";
 import { useDataMachine } from "#/providers/DataProvider";
 import { dayjsArgentina, nowArgentina } from "#/utils/dateTimeUtils";
 import { PaymentRegisterService } from "../../../service/payment-register.service";
 import "./PaymentRegister.css";
-import {getMonthLabel,currencyFormatter,getMethodLabel,getPaymentRegisterYears,getPaymentRegisterMonths,getPeriodTurns,getPaymentTurns,buildPaymentSummary,validatePaymentForm,buildPaymentUpdatePayload,} from "#/utils/paymentRegisterUtils";
+import {getMonthLabel,currencyFormatter,getMethodLabel,getPaymentRegisterYears,getPaymentRegisterMonths,getPeriodTurns,getPaymentTurns,buildPaymentSummary,validatePaymentForm,buildPaymentUpdatePayload,buildPaymentTurnViewModel,} from "#/utils/paymentRegisterUtils";
 
 const PaymentRegister: React.FC = () => {
     const { paymentRegisterState, paymentRegisterSend } = useMachines();
@@ -66,6 +66,27 @@ const PaymentRegister: React.FC = () => {
             paymentRegisterSend({ type: "LOAD_PAYMENT_REGISTER" });
         } catch (error) {
             const message = error instanceof Error ? error.message : "Error al registrar el pago";
+            paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message });
+        } finally {
+            paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: null });
+        }
+    };
+
+    const handleCancelPayment = async (turnId: string) => {
+        if (!accessToken) {
+            paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message: "Sesión expirada. Volvé a iniciar sesión." });
+            return;
+        }
+
+        paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: turnId });
+        paymentRegisterSend({ type: "CLEAR_PAYMENT_ERROR", paymentId: turnId });
+
+        try {
+            await PaymentRegisterService.cancelPaymentRegister({ accessToken, turnId });
+            dataSend({ type: "LOAD_MY_TURNS" });
+            paymentRegisterSend({ type: "LOAD_PAYMENT_REGISTER" });
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Error al eliminar el registro de pago";
             paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message });
         } finally {
             paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: null });
@@ -219,7 +240,7 @@ const PaymentRegister: React.FC = () => {
                                 {summary.totalPayments}
                             </Typography>
                             <Typography className="paid-summary-card-caption">
-                                {summary.paidCount} pagado(s) · {summary.bonusCount} bonificado(s) · {summary.healthInsuranceCount} obra social
+                                {summary.paidCount} pagado(s) · {summary.bonusCount} bonificado(s) · {summary.healthInsuranceCount} obra social · {summary.canceledPaymentCount} eliminado(s)
                             </Typography>
                         </Box>
 
@@ -253,27 +274,29 @@ const PaymentRegister: React.FC = () => {
                         <Typography variant="h6">Detalle de pagos</Typography>
                         {paymentTurns.map((turn: any) => {
                             const payment = turn.paymentRegister;
-                            const paymentStatus = payment?.paymentStatus || "PENDING";
-                            const formState = paymentRegisterContext.formByPaymentId[turn.id] || {
-                                paymentStatus,
-                                method: payment?.method || "",
-                                paymentAmount: payment?.paymentAmount != null ? String(payment.paymentAmount) : "",
-                                copaymentAmount: payment?.copaymentAmount != null ? String(payment.copaymentAmount) : ""
-                            };
-                            const copaymentAmount = Number(payment?.copaymentAmount ?? 0);
-                            const paymentAmount = Number(payment?.paymentAmount ?? 0);
-                            const coverage = paymentStatus === "HEALTH INSURANCE"
-                                ? Math.max(paymentAmount - copaymentAmount, 0)
-                                : 0;
+                            const {
+                                isCanceledPayment,
+                                canEditPayment,
+                                canDeletePayment,
+                                formState,
+                                copaymentAmount,
+                                paymentAmount,
+                                coverage,
+                            } = buildPaymentTurnViewModel(turn, paymentRegisterContext.formByPaymentId[turn.id]);
 
                             return (
-                                <Card key={turn.id} variant="outlined">
+                                <Card key={turn.id} variant="outlined" className={isCanceledPayment ? "payment-register-card-canceled" : ""}>
                                     <CardContent>
                                         <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
                                             <Box>
                                                 <Typography variant="subtitle1">
                                                     Paciente: {turn.patientName || "Paciente"}
                                                 </Typography>
+                                                {isCanceledPayment && (
+                                                    <Typography variant="caption" className="payment-register-canceled-badge">
+                                                        Registro eliminado
+                                                    </Typography>
+                                                )}
                                                 <Typography variant="body2" color="text.secondary">
                                                     Fecha del pago: {payment.paymentStatus!="PENDING"? dayjsArgentina(payment.paidAt).format("DD/MM/YYYY") : "-"}
                                                 </Typography>
@@ -304,9 +327,32 @@ const PaymentRegister: React.FC = () => {
                                             </Box>
                                         </Box>
 
-                                        {(paymentStatus === "PENDING" && turn.status==="COMPLETED")&& (
+                                        {canDeletePayment && (
+                                            <Box mt={2} display="flex" justifyContent="flex-end">
+                                                <Button
+                                                    variant="outlined"
+                                                    color="error"
+                                                    onClick={() => handleCancelPayment(turn.id)}
+                                                    endIcon={<DeleteOutline />}
+                                                    disabled={paymentRegisterContext.savingPaymentId === turn.id}
+                                                >
+                                                    {paymentRegisterContext.savingPaymentId === turn.id ? (
+                                                        <CircularProgress size={18} color="inherit" />
+                                                    ) : (
+                                                        "Eliminar registro"
+                                                    )}
+                                                </Button>
+                                            </Box>
+                                        )}
+
+                                        {canEditPayment && (
                                             <Box mt={2} display="flex" flexWrap="wrap" gap={2} rowGap={2} columnGap={2} alignItems="center"
                                                 justifyContent="space-evenly" width="100%" sx={{backgroundColor: "#efdacb", padding: 5, borderRadius: 5}}>
+                                                {isCanceledPayment && (
+                                                    <Typography variant="body2" className="payment-register-canceled-info">
+                                                        Este registro fue eliminado. Podés volver a registrar el pago.
+                                                    </Typography>
+                                                )}
                                                 <TextField
                                                     select
                                                     label="Estado de pago"
@@ -374,7 +420,7 @@ const PaymentRegister: React.FC = () => {
                                                     {paymentRegisterContext.savingPaymentId === turn.id ? (
                                                         <CircularProgress size={18} color="inherit" />
                                                     ) : (
-                                                        "Registrar pago"
+                                                        isCanceledPayment ? "Volver a registrar pago" : "Registrar pago"
                                                     )}
                                                 </Button>
                                                 {paymentRegisterContext.errorByPaymentId[turn.id] && (

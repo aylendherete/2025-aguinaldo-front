@@ -7,6 +7,7 @@ import {
   buildPaymentSummary,
   validatePaymentForm,
   buildPaymentUpdatePayload,
+  buildPaymentTurnViewModel,
 } from './paymentRegisterUtils'
 
 describe('paymentRegisterUtils', () => {
@@ -110,8 +111,8 @@ describe('paymentRegisterUtils', () => {
       {
         status: 'CANCELED',
         paymentRegister: {
-          paymentStatus: 'PENDING',
-          method: '',
+          paymentStatus: 'CANCELED',
+          method: 'CASH',
           paymentAmount: 30,
           copaymentAmount: 0,
         },
@@ -120,17 +121,18 @@ describe('paymentRegisterUtils', () => {
 
     const summary = buildPaymentSummary(turns)
 
-    expect(summary.totalBilled).toBe(480)
+    expect(summary.totalBilled).toBe(450)
     expect(summary.totalCollected).toBe(100)
     expect(summary.totalCopayment).toBe(50)
     expect(summary.totalCovered).toBe(150)
     expect(summary.totalPayments).toBe(3)
+    expect(summary.canceledPaymentCount).toBe(1)
     expect(summary.pendingCount).toBe(1)
     expect(summary.paidCount).toBe(1)
     expect(summary.healthInsuranceCount).toBe(1)
     expect(summary.bonusCount).toBe(1)
     expect(summary.totalBonus).toBe(80)
-    expect(summary.totalAccountsReceivable).toBe(2)
+    expect(summary.totalAccountsReceivable).toBe(1)
     expect(summary.completedCount).toBe(4)
     expect(summary.canceledCount).toBe(1)
   })
@@ -161,5 +163,41 @@ describe('paymentRegisterUtils', () => {
       '2026-02-01T12:00:00.000Z'
     )
     expect(insurancePayload.copaymentAmount).toBe(20)
+  })
+
+  it('buildPaymentTurnViewModel marks canceled as editable and preserves deleted visual state', () => {
+    const turn = {
+      status: 'COMPLETED',
+      paymentRegister: {
+        paymentStatus: 'CANCELED',
+        method: 'CASH',
+        paymentAmount: 250,
+        copaymentAmount: 0,
+      },
+    }
+
+    const vm = buildPaymentTurnViewModel(turn)
+    expect(vm.isCanceledPayment).toBe(true)
+    expect(vm.canEditPayment).toBe(true)
+    expect(vm.canDeletePayment).toBe(false)
+    expect(vm.formState.paymentStatus).toBe('PENDING')
+    expect(vm.formState.method).toBe('')
+    expect(vm.formState.paymentAmount).toBe('')
+  })
+
+  it('buildPaymentTurnViewModel allows deleting non-pending, non-canceled', () => {
+    const turn = {
+      status: 'COMPLETED',
+      paymentRegister: {
+        paymentStatus: 'PAID',
+        method: 'CASH',
+        paymentAmount: 120,
+        copaymentAmount: 0,
+      },
+    }
+
+    const vm = buildPaymentTurnViewModel(turn)
+    expect(vm.canDeletePayment).toBe(true)
+    expect(vm.canEditPayment).toBe(false)
   })
 })

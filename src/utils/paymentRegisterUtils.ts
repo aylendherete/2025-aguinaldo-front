@@ -9,6 +9,17 @@ export interface PaymentFormInput {
     copaymentAmount: string;
 }
 
+export interface PaymentTurnViewModel {
+    paymentStatus: string;
+    isCanceledPayment: boolean;
+    canEditPayment: boolean;
+    canDeletePayment: boolean;
+    formState: PaymentFormInput;
+    copaymentAmount: number;
+    paymentAmount: number;
+    coverage: number;
+}
+
 export const getMonthLabel= (monthIndex:number,selectedYear:number)=>{
         const label=monthFormatter.format(new Date(selectedYear, monthIndex, 1));
         return label.charAt(0).toUpperCase() + label.slice(1);
@@ -129,6 +140,7 @@ export const buildPaymentSummary = (periodTurns: any[]) => {
         totalCopayment: 0,
         totalCovered: 0,
         totalPayments: 0,
+        canceledPaymentCount: 0,
         pendingCount: 0,
         paidCount: 0,
         healthInsuranceCount: 0,
@@ -156,18 +168,25 @@ export const buildPaymentSummary = (periodTurns: any[]) => {
         const paymentAmount = Number(payment.paymentAmount ?? 0);
         const copaymentAmount = Number(payment.copaymentAmount ?? 0);
         const status = payment.paymentStatus;
+        const isCanceledPayment = status === "CANCELED";
 
-        totals.totalBilled += paymentAmount;
-        totals.totalCopayment += copaymentAmount;
+        if (!isCanceledPayment) {
+            totals.totalBilled += paymentAmount;
+            totals.totalCopayment += copaymentAmount;
+        }
 
-        if(status != "PENDING"){
+        if (status !== "PENDING" && !isCanceledPayment) {
             totals.totalPayments += 1;
+        }
+
+        if (isCanceledPayment) {
+            totals.canceledPaymentCount += 1;
         }
 
         const isBonusMethod = payment.method === "BONUS";
         const isHealthInsuranceMethod = payment.method === "HEALTH INSURANCE" || payment.method === "HEALTH_INSURANCE";
 
-        if (status && status !== "PENDING" && !isBonusMethod && !isHealthInsuranceMethod) {
+        if (status === "PAID" && !isBonusMethod && !isHealthInsuranceMethod) {
             totals.totalCollected += paymentAmount;
         }
 
@@ -230,5 +249,40 @@ export const buildPaymentUpdatePayload = (form: PaymentFormInput, paidAt: string
         paymentAmount: Number(form.paymentAmount),
         copaymentAmount: copaymentValue,
         paidAt,
+    };
+};
+
+export const buildPaymentTurnViewModel = (
+    turn: any,
+    savedForm?: Partial<PaymentFormInput>
+): PaymentTurnViewModel => {
+    const payment = turn?.paymentRegister;
+    const paymentStatus = payment?.paymentStatus || "PENDING";
+    const isCanceledPayment = paymentStatus === "CANCELED";
+    const canEditPayment = turn?.status === "COMPLETED" && (paymentStatus === "PENDING" || isCanceledPayment);
+    const canDeletePayment = turn?.status === "COMPLETED" && paymentStatus !== "PENDING" && !isCanceledPayment;
+
+    const formState: PaymentFormInput = {
+        paymentStatus: savedForm?.paymentStatus ?? (isCanceledPayment ? "PENDING" : paymentStatus),
+        method: savedForm?.method ?? (isCanceledPayment ? "" : (payment?.method || "")),
+        paymentAmount: savedForm?.paymentAmount ?? (isCanceledPayment ? "" : (payment?.paymentAmount != null ? String(payment.paymentAmount) : "")),
+        copaymentAmount: savedForm?.copaymentAmount ?? (isCanceledPayment ? "" : (payment?.copaymentAmount != null ? String(payment.copaymentAmount) : "")),
+    };
+
+    const copaymentAmount = Number(payment?.copaymentAmount ?? 0);
+    const paymentAmount = Number(payment?.paymentAmount ?? 0);
+    const coverage = paymentStatus === "HEALTH INSURANCE"
+        ? Math.max(paymentAmount - copaymentAmount, 0)
+        : 0;
+
+    return {
+        paymentStatus,
+        isCanceledPayment,
+        canEditPayment,
+        canDeletePayment,
+        formState,
+        copaymentAmount,
+        paymentAmount,
+        coverage,
     };
 };

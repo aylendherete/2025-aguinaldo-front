@@ -53,4 +53,25 @@ export class PaymentRegisterService {
         throw error;
     }
   }
+
+  static async cancelPaymentRegister({ accessToken, turnId }: LoadPaymentRegisterParams): Promise<PaymentRegisterResponse> {
+    const url = `${buildApiUrl(API_CONFIG.ENDPOINTS.CANCEL_PAYMENT_REGISTER)}/${turnId}/cancel`;
+
+    try {
+      const response = await fetch(url, {
+        ...getAuthenticatedFetchOptions(accessToken),
+        method: "PATCH",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.message || errorData?.error || "No se pudo eliminar el registro de pagos");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Fallo la eliminación de pagos", error);
+      throw error;
+    }
+  }
 }
