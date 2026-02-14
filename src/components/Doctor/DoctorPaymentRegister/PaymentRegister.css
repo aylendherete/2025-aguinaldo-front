@@ -13,11 +13,7 @@
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
 }
 
-.paid-summary-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(56, 163, 165, 0.15);
-  border-color: #38a3a5;
-}
+
 
 .paid-summary-card-header {
   display: flex;
@@ -162,6 +158,22 @@
     background:#06996f4d;
  }
 
-    .info-count-card{
-        background:#e0b96b4d;
-    }
+.info-count-card{
+    background:#e0b96b4d;
+}
+
+.total-billed-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 67, 125, 0.15);
+  border-color: #09437d;
+}
+.total-payment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 165, 100, 0.15);
+  border-color: #06996f;
+}
+.info-count-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(165, 134, 56, 0.15);
+  border-color: #e0b96b;
+}

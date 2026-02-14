@@ -107,6 +107,21 @@ export const getPeriodTurns = (turns: any[], selectedMonth: number, selectedYear
     });
 };
 
+export const getPaymentTurns = (periodTurns: any[]) => {
+    return periodTurns
+        .filter((turn: any) => turn.paymentRegister)
+        .sort((a: any, b: any) => {
+            const aIsPendingCompleted = a?.status === "COMPLETED" && a?.paymentRegister?.paymentStatus === "PENDING";
+            const bIsPendingCompleted = b?.status === "COMPLETED" && b?.paymentRegister?.paymentStatus === "PENDING";
+
+            if (aIsPendingCompleted === bIsPendingCompleted) {
+                return 0;
+            }
+
+            return aIsPendingCompleted ? -1 : 1;
+        });
+};
+
 export const buildPaymentSummary = (periodTurns: any[]) => {
     const totals = {
         totalBilled: 0,

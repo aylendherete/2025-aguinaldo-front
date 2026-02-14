@@ -9,7 +9,7 @@ import { useDataMachine } from "#/providers/DataProvider";
 import { dayjsArgentina, nowArgentina } from "#/utils/dateTimeUtils";
 import { PaymentRegisterService } from "../../../service/payment-register.service";
 import "./PaymentRegister.css";
-import {getMonthLabel,currencyFormatter,getMethodLabel,getPaymentRegisterYears,getPaymentRegisterMonths,getPeriodTurns,buildPaymentSummary,validatePaymentForm,buildPaymentUpdatePayload,} from "#/utils/paymentRegisterUtils";
+import {getMonthLabel,currencyFormatter,getMethodLabel,getPaymentRegisterYears,getPaymentRegisterMonths,getPeriodTurns,getPaymentTurns,buildPaymentSummary,validatePaymentForm,buildPaymentUpdatePayload,} from "#/utils/paymentRegisterUtils";
 
 const PaymentRegister: React.FC = () => {
     const { paymentRegisterState, paymentRegisterSend } = useMachines();
@@ -27,7 +27,7 @@ const PaymentRegister: React.FC = () => {
         .map((month) => ({ value: month, label: getMonthLabel(month, selectedYear) }));
 
     const periodTurns = getPeriodTurns(turns, selectedMonth, selectedYear);
-    const paymentTurns = periodTurns.filter((turn: any) => turn.paymentRegister);
+    const paymentTurns = getPaymentTurns(periodTurns);
     const summary = buildPaymentSummary(periodTurns);
 
 
