@@ -341,8 +341,6 @@ const PaymentRegister: React.FC = () => {
                                                     <MenuItem value="DEBIT CARD">Tarjeta de débito</MenuItem>
                                                     <MenuItem value="ONLINE PAYMENT">Pago online</MenuItem>
                                                     <MenuItem value="TRANSFER">Transferencia</MenuItem>
-                                                    <MenuItem value="BONUS">Bonificado</MenuItem>
-                                                    <MenuItem value="HEALTH INSURANCE">Obra social</MenuItem>
                                                 </TextField>
                                                 <TextField
                                                     label="Monto abonado"

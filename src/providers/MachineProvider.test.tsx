@@ -76,6 +76,12 @@ vi.mock('../machines/badgeMachine', () => ({
   default: { id: 'badge-machine' },
 }));
 
+vi.mock('../machines/paymentRegisterMachine', () => ({
+  PAYMENT_REGISTER_MACHINE_ID: 'payment_register',
+  PAYMENT_REGISTER_MACHINE_EVENT_TYPES: ['PAYMENT_REGISTER_EVENT_1', 'PAYMENT_REGISTER_EVENT_2'],
+  paymentRegisterMachine: { id: 'payment_register' },
+}));
+
 // Import the mocked module
 import { useStateMachine } from '../hooks/useStateMachine';
 
@@ -156,6 +162,7 @@ describe('MachineProvider', () => {
     filesState: null,
     ratingState: null,
     badgeState: null,
+    paymentRegisterState: null,
   };
 
   const mockSends = {
@@ -169,6 +176,7 @@ describe('MachineProvider', () => {
     filesSend: vi.fn(),
     ratingSend: vi.fn(),
     badgeSend: vi.fn(),
+    paymentRegisterSend: vi.fn(),
   };
 
   beforeEach(() => {
@@ -197,6 +205,8 @@ describe('MachineProvider', () => {
           return { state: mockStates.ratingState, send: mockSends.ratingSend };
         case 'badge-machine':
           return { state: mockStates.badgeState, send: mockSends.badgeSend };
+        case 'payment_register':
+          return { state: mockStates.paymentRegisterState, send: mockSends.paymentRegisterSend };
         default:
           return { state: null, send: vi.fn() };
       }
@@ -275,6 +285,7 @@ describe('MachineProvider', () => {
     expect(useStateMachine).toHaveBeenCalledWith('admin-user-machine');
     expect(useStateMachine).toHaveBeenCalledWith('profile-machine');
     expect(useStateMachine).toHaveBeenCalledWith('notification-machine');
+    expect(useStateMachine).toHaveBeenCalledWith('payment_register');
   });
 
   it('should provide the correct machine instances structure', () => {
@@ -312,6 +323,8 @@ describe('MachineProvider', () => {
       ratingSend: mockSends.ratingSend,
       badgeState: mockStates.badgeState,
       badgeSend: mockSends.badgeSend,
+      paymentRegisterState: mockStates.paymentRegisterState,
+      paymentRegisterSend: mockSends.paymentRegisterSend,
     });
   });
 });
