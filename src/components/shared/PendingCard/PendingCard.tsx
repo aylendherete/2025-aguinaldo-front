@@ -27,26 +27,43 @@ export default function PendingCard(props: PendingCardProps) {
 
   return (
     <Card sx={{ mb: 2, borderRadius: 2, boxShadow: 2 }}>
-      <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>
+      <CardContent
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'stretch', sm: 'center' },
+          justifyContent: 'space-between',
+          gap: { xs: 2, sm: 3 },
+          p: { xs: 2, sm: 3 }
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, minWidth: 0, width: '100%' }}>
+          <Avatar sx={{ bgcolor: 'primary.main', width: { xs: 42, sm: 48 }, height: { xs: 42, sm: 48 }, flexShrink: 0 }}>
             {avatarContent}
           </Avatar>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+          <Box sx={{ minWidth: 0, width: '100%', '& .MuiTypography-root': { wordBreak: 'break-word' } }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               {title}
             </Typography>
             {children}
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            width: { xs: '100%', sm: 'auto' },
+            flexDirection: { xs: 'column', sm: 'row' }
+          }}
+        >
           <Button
             variant="contained"
             color="success"
             startIcon={<CheckIcon />}
             onClick={() => onApprove(id)}
             disabled={isLoading}
-            sx={{ minWidth: 100 }}
+            sx={{ minWidth: { xs: '100%', sm: 100 }, width: { xs: '100%', sm: 'auto' } }}
           >
             Aprobar
           </Button>
@@ -56,7 +73,7 @@ export default function PendingCard(props: PendingCardProps) {
             startIcon={<CloseIcon />}
             onClick={() => onReject(id)}
             disabled={isLoading}
-            sx={{ minWidth: 100 }}
+            sx={{ minWidth: { xs: '100%', sm: 100 }, width: { xs: '100%', sm: 'auto' } }}
           >
             Rechazar
           </Button>
