@@ -243,7 +243,7 @@ const ReservationTurns: React.FC = () => {
 
                 
                 <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-                  <FormControl size="small" sx={{ minWidth: 160 }}>
+                  <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 160 }, flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>
                     <InputLabel id="min-score-label">Puntaje mínimo</InputLabel>
                     <Select
                       labelId="min-score-label"
@@ -261,7 +261,7 @@ const ReservationTurns: React.FC = () => {
                     </Select>
                   </FormControl>
 
-                  <FormControl size="small" sx={{ minWidth: 200 }}>
+                  <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 200 }, flex: { xs: '1 1 100%', sm: '1 1 auto' } }}>
                     <InputLabel id="subcat-select-label">Subcategorías</InputLabel>
                     <Select
                       labelId="subcat-select-label"
@@ -321,8 +321,8 @@ const ReservationTurns: React.FC = () => {
                     </MenuItem>
                     {filteredDoctors.map((doctor: any) => (
                       <MenuItem key={doctor.id} value={doctor.id} sx={{ '&:hover': { transform: 'none !important' }, transition: 'none' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                          <Box sx={{ mr: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', width: '100%', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
+                          <Box sx={{ mr: 1, overflow: 'hidden', textOverflow: 'ellipsis', width: { xs: '100%', sm: 'auto' } }}>
                             {doctor.name} {doctor.surname}
                             {ratedCountsSnapshot[doctor.id] && ratedCountsSnapshot[doctor.id].length > 0 && (
                               <Stack direction="row" spacing={0.5} sx={{ mt: 0.5, flexWrap: 'wrap' }}>
@@ -355,7 +355,7 @@ const ReservationTurns: React.FC = () => {
                               </Stack>
                             )}
                           </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
                             {doctor.score != null ? (
                               <>
                                 <Rating value={doctor.score} precision={0.1} readOnly size="small" />

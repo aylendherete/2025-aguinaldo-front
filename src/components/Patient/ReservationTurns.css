@@ -10,6 +10,10 @@
   padding: 0 !important;
 }
 
+.reservation-page-container {
+  padding: 0 24px 32px 24px !important;
+}
+
 /* Header overrides - specific styling for ReservationTurns */
 .patient-back-button-container {
   flex-shrink: 0 !important;
@@ -83,6 +87,11 @@
   padding: 32px !important;
   border: 1px solid var(--verdigris) !important;
   box-shadow: 0 4px 15px rgba(34, 87, 122, 0.1) !important;
+}
+
+.reservation-form-section .MuiFormControl-root,
+.reservation-form-section .MuiTextField-root {
+  width: 100%;
 }
 
 .reservation-input {
@@ -339,19 +348,35 @@
     gap: 24px;
   }
 
-  .reservation-container {
-    padding: 24px 16px;
+  .reservation-page-container {
+    padding: 0 16px 24px 16px !important;
+  }
+
+  .reservation-form-section,
+  .reservation-calendar-section,
+  .reservation-time-section {
+    padding: 20px !important;
+  }
+
+  .reservation-actions-step-1,
+  .reservation-actions-step-2 {
+    margin: 20px 8px !important;
   }
 }
 
 @media (max-width: 768px) {
   .patient-container {
-    padding: 16px 8px;
+    padding: 0 !important;
+  }
+
+  .reservation-page-container {
+    padding: 0 12px 20px 12px !important;
   }
 
   .reservation-step1-container,
   .reservation-step2-container {
     max-width: none;
+    gap: 16px;
   }
 
   .reservation-step2-content {
@@ -362,12 +387,17 @@
   .reservation-form-section,
   .reservation-calendar-section,
   .reservation-time-section {
-    padding: 20px !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
   }
 
-  .reservation-actions {
-    flex-direction: column-reverse;
+  .reservation-actions-step-1,
+  .reservation-actions-step-2 {
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
     gap: 16px;
+    margin: 12px 4px !important;
+    padding-top: 16px !important;
   }
 
   .reservation-btn-secondary,
@@ -390,12 +420,31 @@
     width: 100%;
     justify-content: center;
     padding: 10px 16px !important;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .reservation-time-slots {
+    max-height: 320px;
+    padding: 12px !important;
+  }
+
+  .reservation-calendar-container {
+    padding: 8px !important;
+  }
+
+  .reservation-calendar-container .MuiDateCalendar-root {
+    max-width: 320px !important;
   }
 }
 
 @media (max-width: 480px) {
   .patient-container {
-    padding: 12px 4px;
+    padding: 0 !important;
+  }
+
+  .reservation-page-container {
+    padding: 0 8px 16px 8px !important;
   }
 
   /* Ensure chips and menu items don't zoom on hover anywhere in this component */
@@ -418,16 +467,16 @@
   .reservation-form-section,
   .reservation-calendar-section,
   .reservation-time-section {
-    padding: 16px !important;
+    padding: 12px !important;
   }
 
 /* Global safety: disable unexpected hover/zoom effects on chips, menu items and time-slot buttons */
-.MuiChip-root,
-.MuiChip-root:hover,
-.MuiMenuItem-root,
-.MuiMenuItem-root:hover,
-.reservation-time-slot-button,
-.reservation-time-slot-button:hover {
+.reservation-page-container .MuiChip-root,
+.reservation-page-container .MuiChip-root:hover,
+.reservation-page-container .MuiMenuItem-root,
+.reservation-page-container .MuiMenuItem-root:hover,
+.reservation-page-container .reservation-time-slot-button,
+.reservation-page-container .reservation-time-slot-button:hover {
   transition: none !important;
   transform: none !important;
   box-shadow: none !important;
@@ -444,9 +493,19 @@
     font-size: 0.875rem !important;
   }
 
+  .reservation-progress-step {
+    font-size: 0.82rem;
+    padding: 8px 12px !important;
+  }
+
   .reservation-btn-secondary,
   .reservation-btn-primary {
     padding: 12px !important;
     font-size: 0.9rem !important;
+  }
+
+  .reservation-empty-state,
+  .reservation-loading-container {
+    padding: 20px 12px !important;
   }
 }
