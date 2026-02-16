@@ -345,7 +345,7 @@ const PatientDetails: React.FC = () => {
                 <Typography variant="h4" component="h1" className="shared-header-title">
                   {getFullName(patient.name, patient.surname)}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
                   <Chip 
                     icon={<FiberManualRecordOutlined />}
                     label={getStatusLabel(patient.status)}
@@ -370,7 +370,7 @@ const PatientDetails: React.FC = () => {
         <Box className="patient-details-content">
           
 
-          <Box sx={{ flex: '1 1 400px', minWidth: 0 }}>
+          <Box sx={{ flex: '1 1 400px', minWidth: 0, width: { xs: '100%', md: 'auto' } }}>
             <Paper elevation={1} sx={{ p: 3 }} className="patient-details-info-paper">
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <PersonOutlined color="primary" />
@@ -474,7 +474,7 @@ const PatientDetails: React.FC = () => {
           </Box>
 
   
-          <Box sx={{ flex: '1 1 400px', minWidth: 0 }}>
+          <Box sx={{ flex: '1 1 400px', minWidth: 0, width: { xs: '100%', md: 'auto' } }}>
             <Paper elevation={1} sx={{ p: 3 }} className="patient-details-medical-history-paper">
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <History color="primary" />
@@ -504,9 +504,19 @@ const PatientDetails: React.FC = () => {
                       const fileInfo = getTurnFileInfo(turn.id);
 
                       return (
-                        <Paper key={turn.id} elevation={2} sx={{ p: 2 }}>
+                        <Paper key={turn.id} elevation={2} sx={{ p: { xs: 1.5, sm: 2 } }}>
                           <Box sx={{ mb: 2 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Box
+                              className="patient-history-turn-header"
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: { xs: 'flex-start', sm: 'center' },
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                gap: { xs: 1, sm: 0 },
+                                mb: 1,
+                              }}
+                            >
                               <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                                 {formatDateTime(turn.scheduledAt, "DD/MM/YYYY - HH:mm")}
                               </Typography>
@@ -519,7 +529,7 @@ const PatientDetails: React.FC = () => {
                             
                             {/* File attachment info */}
                             {fileStatus === "has-file" && fileInfo && (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                                 <AttachFile sx={{ fontSize: 16, color: '#1976d2' }} />
                                 <Button
                                   variant="text"
@@ -564,7 +574,7 @@ const PatientDetails: React.FC = () => {
                                   variant="outlined"
                                   size="small"
                                 />
-                                <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                                   <Button
                                     size="small"
                                     onClick={handleCancelEdit}
