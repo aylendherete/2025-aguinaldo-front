@@ -181,7 +181,7 @@ const ViewTurns: React.FC = () => {
         </Box>
       </Box>
 
-      <Box className="viewturns-content">
+      <Box className="viewturns-content" sx={{ px: { xs: 1.5, sm: 2, md: 3 } }}>
 
         {/* Filters Section */}
         <Box className="viewturns-filters-section">
@@ -213,7 +213,7 @@ const ViewTurns: React.FC = () => {
                 </Select>
               </FormControl>
 
-              <FormControl size="small" className="doctor-viewturns-filter-select">
+              <FormControl size="small" className="viewturns-filter-select">
                 <InputLabel>Estado de pago</InputLabel>
                 <Select
                   value={showTurnsContext.statusPaymentFilter || ""}

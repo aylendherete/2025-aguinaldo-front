@@ -199,13 +199,13 @@ const DoctorViewTurns: React.FC = () => {
           </Box>
         </Box>
 
-        <Box className="doctor-viewturns-content">
+        <Box className="doctor-viewturns-content" sx={{ px: { xs: 1.5, sm: 2, md: 3 } }}>
           {/* Filters Section */}
           <Box className="doctor-viewturns-filters-section">
             <Box className="doctor-viewturns-filters-header">
               <Box flexDirection={"row"} display={"flex"} justifyContent={"center"} alignItems={"center"} gap={1}>
                 <FilterAltIcon sx={{color:"#3a67c9"}}/>
-                <Typography variant="h6" className="viewturns-section-title">
+                <Typography variant="h6" className="doctor-viewturns-section-title">
                   Filtros
                 </Typography>
             </Box>
