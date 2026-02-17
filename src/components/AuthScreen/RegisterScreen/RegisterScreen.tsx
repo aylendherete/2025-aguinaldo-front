@@ -389,8 +389,9 @@ function RegisterScreen() {
                           options={healthInsuranceOptions}
                           value={authContext.formValues.healthInsurance || null}
                           onChange={(_, newValue) => {
-                            authSend({ type: "UPDATE_FORM", key: "healthInsurance", value: newValue.trim().toUpperCase() });
-                            if (newValue.trim().toUpperCase() !== selectedInsurance) {
+                            const normalizedInsurance = newValue ? newValue.trim().toUpperCase() : null;
+                            authSend({ type: "UPDATE_FORM", key: "healthInsurance", value: normalizedInsurance });
+                            if (normalizedInsurance !== selectedInsurance) {
                               authSend({ type: "UPDATE_FORM", key: "healthPlan", value: null });
                             }
                           }}
@@ -400,9 +401,8 @@ function RegisterScreen() {
                               label="Obra Social"
                               name="healthInsurance"
                               fullWidth
-                              required
                               error={!!authContext.formErrors?.healthInsurance}
-                              helperText={authContext.formErrors?.healthInsurance || " "}
+                              helperText={authContext.formErrors?.healthInsurance || "Opcional"}
                               className="auth-field"
                             />
                           )}
@@ -414,7 +414,7 @@ function RegisterScreen() {
                           value={selectedHealthPlan}
                           
                           onChange={(_, newValue) => {
-                            authSend({ type: "UPDATE_FORM", key: "healthPlan", value:newValue.trim().toUpperCase()});
+                            authSend({ type: "UPDATE_FORM", key: "healthPlan", value: newValue ? newValue.trim().toUpperCase() : null });
                           }}
                           renderInput={(params) => (
                             <TextField
@@ -422,9 +422,8 @@ function RegisterScreen() {
                               label="Plan"
                               name="healthPlan"
                               fullWidth
-                              required
                               error={!!authContext.formErrors?.healthPlan}
-                              helperText={authContext.formErrors?.healthPlan || " "}
+                              helperText={authContext.formErrors?.healthPlan || "Opcional"}
                               className="auth-field"
                               placeholder={selectedInsurance ? "Selecciona un plan" : "Selecciona primero una obra social"}
                             />

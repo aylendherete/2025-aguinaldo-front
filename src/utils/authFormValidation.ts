@@ -8,9 +8,15 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
     return "";
   }
 
+  const isOptionalCoverageField = key.includes("healthInsurance") || key.includes("healthPlan");
+
   // Required field validation
-  if (!value || value === null || value === undefined || value === "") {
+  if (!isOptionalCoverageField && (!value || value === null || value === undefined || value === "")) {
     return "Campo requerido";
+  }
+
+  if (isOptionalCoverageField && (value === null || value === undefined || value === "")) {
+    return "";
   }
 
   // Email validation
