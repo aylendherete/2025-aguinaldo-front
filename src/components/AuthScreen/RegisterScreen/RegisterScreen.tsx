@@ -423,7 +423,7 @@ function RegisterScreen() {
                               name="healthPlan"
                               fullWidth
                               error={!!authContext.formErrors?.healthPlan}
-                              helperText={authContext.formErrors?.healthPlan || "Opcional"}
+                              helperText={authContext.formErrors?.healthPlan || (selectedInsurance ? "Requerido si seleccionás obra social" : "Opcional")}
                               className="auth-field"
                               placeholder={selectedInsurance ? "Selecciona un plan" : "Selecciona primero una obra social"}
                             />

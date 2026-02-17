@@ -15,9 +15,7 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
     return "Campo requerido";
   }
 
-  if (isOptionalCoverageField && (value === null || value === undefined || value === "")) {
-    return "";
-  }
+  const isCoverageValueEmpty = value === null || value === undefined || value === "";
 
   // Email validation
   if (key.includes("email")) {
@@ -128,6 +126,10 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
   }
 
   if (key.includes("healthInsurance")) {
+    if (isCoverageValueEmpty) {
+      return "";
+    }
+
     const normalizedInsurance = value.toString().trim().toUpperCase();
     if (!HEALTH_INSURANCE_LIST.includes(normalizedInsurance)) {
       return "Obra social inválida";
@@ -136,8 +138,17 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
   }
 
   if (key.includes("healthPlan")) {
-    const normalizedPlan = value.toString().trim().toUpperCase();
     const insuranceValue = context.formValues?.healthInsurance;
+
+    if (insuranceValue && isCoverageValueEmpty) {
+      return "Debe seleccionar un plan para la obra social";
+    }
+
+    if (isCoverageValueEmpty) {
+      return "";
+    }
+
+    const normalizedPlan = value.toString().trim().toUpperCase();
 
     if (!insuranceValue) {
       return "Debe seleccionar una obra social";
@@ -186,5 +197,11 @@ export const checkFormValidation = (context: AuthMachineContext): boolean => {
     return !value || (typeof value === 'string' && value.trim() === '');
   });
 
-  return hasErrors || hasEmptyFields;
+  const hasInsuranceWithoutPlan =
+    context.mode === "register" &&
+    context.isPatient &&
+    !!context.formValues.healthInsurance &&
+    (!context.formValues.healthPlan || context.formValues.healthPlan.trim() === "");
+
+  return hasErrors || hasEmptyFields || hasInsuranceWithoutPlan;
 };
