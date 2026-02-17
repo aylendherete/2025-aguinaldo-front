@@ -6,6 +6,12 @@
   margin: 0;
 }
 
+@media (max-width: 768px) {
+  .patients-content {
+    padding: 0 0.25rem;
+  }
+}
+
 .admin-patients-container {
   padding: 0;
   margin: 0;

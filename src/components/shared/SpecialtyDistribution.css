@@ -5,7 +5,7 @@
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
-  margin: 3rem;
+  margin: clamp(0.75rem, 2vw, 2rem);
 
 }
 
@@ -173,6 +173,11 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .specialty-distribution-section {
+    margin: 1rem 0.75rem;
+    padding: 1rem;
+  }
+
   .specialty-grid {
     grid-template-columns: 1fr;
   }
@@ -185,5 +190,30 @@
   
   .specialty-card {
     padding: 0.75rem;
+  }
+
+  .specialty-card-header {
+    gap: 0.75rem;
+  }
+
+  .specialty-chip {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .specialty-distribution-section {
+    margin: 0.75rem 0.5rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .specialty-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .doctor-count-container {
+    text-align: left;
   }
 }
