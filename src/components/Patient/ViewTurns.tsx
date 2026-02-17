@@ -40,7 +40,7 @@ const ViewTurns: React.FC = () => {
   const { cancellingTurnId, isCancellingTurn } = turnContext;
 
   const allTurns: TurnResponse[] = dataContext.myTurns || [];
-  const filteredTurns: TurnResponse[] = (filterTurns(allTurns, showTurnsContext.statusFilter) as TurnResponse[])
+  const filteredTurns: TurnResponse[] = (filterTurns(allTurns, showTurnsContext.statusFilter, showTurnsContext.statusPaymentFilter) as TurnResponse[])
     .slice()
     .sort((a, b) => dayjsArgentina(b.scheduledAt).valueOf() - dayjsArgentina(a.scheduledAt).valueOf());
   const pendingModifyRequests = dataContext.myModifyRequests?.filter((r: TurnModifyRequest) => r.status === "PENDING") || [];
@@ -60,6 +60,58 @@ const ViewTurns: React.FC = () => {
 
   const handleModifyTurn = (turnId: string) => {
     orchestrator.send({ type: "NAVIGATE", to: '/patient/modify-turn?turnId=' + turnId });
+  };
+
+  const getStatusPaymentLabel = (status?: string | null) => {
+    if (!status) {
+      return "Sin información de pago";
+    }
+    
+    switch (status) {
+      case "PENDING":
+        return "Pendiente";
+      case "PAID":
+        return "Pagado";
+      case "HEALTH INSURANCE":
+        return "Obra Social";
+      case "BONUS":
+        return "Bonificado";
+      default:
+        return status;
+    }
+  };
+
+  const getMethodPaymentLabel = (method?: string | null) => {
+    if (!method) {
+      return "";
+    }
+
+    switch (method) {
+      case "CASH": 
+        return "Efectivo";
+      case "CREDIT CARD":
+        return "Tarjeta de Crédito";
+      case "DEBIT CARD":
+        return "Tarjeta de Débito";
+      case "ONLINE PAYMENT":
+        return "Pago Online";
+      case "TRANSFER":
+        return "Transferencia";
+      case "BONUS":
+        return "Bonificado";
+      case "HEALTH INSURANCE":
+        return "Obra Social";
+      default:
+        return method;
+    }
+
+  };
+
+  const getPaymentStatusClass = (status?: string | null) => {
+    if (!status) {
+      return "payment-status-unknown";
+    }
+    return `payment-status-${status.toLowerCase().replace(" ", "-")}`;
   };
 
   const getStatusLabel = (status: string) => {
@@ -129,7 +181,7 @@ const ViewTurns: React.FC = () => {
         </Box>
       </Box>
 
-      <Box className="viewturns-content">
+      <Box className="viewturns-content" sx={{ px: { xs: 1.5, sm: 2, md: 3 } }}>
 
         {/* Filters Section */}
         <Box className="viewturns-filters-section">
@@ -161,14 +213,44 @@ const ViewTurns: React.FC = () => {
                 </Select>
               </FormControl>
 
-              {showTurnsContext.statusFilter && (
+              <FormControl size="small" className="viewturns-filter-select">
+                <InputLabel>Estado de pago</InputLabel>
+                <Select
+                  value={showTurnsContext.statusPaymentFilter || ""}
+                  label="Estado de pago"
+                  onChange={(e) => turnSend({
+                    type: "UPDATE_FORM",
+                    path: ["showTurns", "statusPaymentFilter"],
+                    value: e.target.value
+                  })}
+                >
+                  <MenuItem value="">Todos los estados</MenuItem>
+                  <MenuItem value="PENDING">Pendiente</MenuItem>
+                  <MenuItem value="PAID">Pagado</MenuItem>
+                  <MenuItem value="HEALTH INSURANCE">Obra Social</MenuItem>
+                  <MenuItem value="BONUS">Bonificado</MenuItem>
+                </Select>
+              </FormControl>
+
+              {(showTurnsContext.statusFilter || showTurnsContext.statusPaymentFilter) && (
                 <Button
                   variant="outlined"
-                    onClick={() => turnSend({
-                      type: "UPDATE_FORM",
-                      path: ["showTurns", "statusFilter"],
-                      value: ""
-                    })}
+                  onClick={() => {
+                      if (showTurnsContext.statusFilter) {
+                        turnSend({
+                          type: "UPDATE_FORM",
+                          path: ["showTurns", "statusFilter"],
+                          value: ""
+                        });
+                      }
+                      if (showTurnsContext.statusPaymentFilter) {
+                        turnSend({
+                          type: "UPDATE_FORM",
+                          path: ["showTurns", "statusPaymentFilter"],
+                          value: ""
+                        });
+                      }
+                    }}
                   className="viewturns-clear-filter-btn"
                 >
                   Limpiar filtro
@@ -217,6 +299,22 @@ const ViewTurns: React.FC = () => {
                             className="viewturns-chip-small"
                           />
                         )}
+
+                        {(() => {
+                          const paymentRegister = turn.paymentRegister;
+                          const paymentStatus = paymentRegister?.paymentStatus;
+                          const paymentMethod = paymentRegister?.method;
+                          const statusLabel = getStatusPaymentLabel(paymentStatus);
+                          const methodLabel = paymentMethod ? getMethodPaymentLabel(paymentMethod) : "";
+                          const chipLabel = methodLabel ? `${statusLabel} - ${methodLabel}` : statusLabel;
+                          return (
+                            <Chip
+                              label={chipLabel}
+                              size="small"
+                              className={`patient-viewturns-payment-status-chip ${getPaymentStatusClass(paymentStatus)}`}
+                            />
+                          );
+                        })()}
 
                         <Typography variant="body1" className="viewturns-turn-datetime viewturns-date-text">
                           {formatDateTime(turn.scheduledAt, "dddd, DD [de] MMMM [de] YYYY").replace(/^\w/, (c) => c.toUpperCase())}

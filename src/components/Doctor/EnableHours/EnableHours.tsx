@@ -44,6 +44,11 @@ const EnableHours: React.FC = () => {
             console.error("Authentication required to save availability");
             return;
         }
+
+        if (enabledDays === 0) {
+            doctorSend({ type: "SAVE_AVAILABILITY" });
+            return;
+        }
         
         const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
         let hasValidData = false;
@@ -361,7 +366,7 @@ const EnableHours: React.FC = () => {
 
                     {(enabledDays === 0 || totalRanges === 0) && (
                         <Alert severity="warning" className="enablehours-warning">
-                            Debes activar al menos un día y configurar horarios para poder guardar tu disponibilidad.
+                            Si no activas ningún día, se guardará tu agenda como "sin disponibilidad" toda la semana.
                         </Alert>
                     )}
 
@@ -373,7 +378,7 @@ const EnableHours: React.FC = () => {
                             onClick={saveAvailability}
                             size="large"
                             startIcon={doctorContext.isSavingAvailability ? <CircularProgress size={16} /> : <CheckCircle />}
-                            disabled={enabledDays === 0 || totalRanges === 0 || doctorContext.isSavingAvailability}
+                            disabled={doctorContext.isSavingAvailability}
                             className="enablehours-save-button"
                         >
                             {doctorContext.isSavingAvailability ? 'Guardando...' : 'Guardar Disponibilidad'}

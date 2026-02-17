@@ -114,10 +114,12 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
       disableEscapeKeyDown={isDeletingAllNotifications}
       PaperProps={{
         sx: {
-          maxHeight: '85vh',
+          width: { xs: 'calc(100% - 16px)', sm: '100%' },
+          maxHeight: { xs: '90vh', sm: '85vh' },
           borderRadius: '16px',
           boxShadow: '0 12px 30px rgba(34, 87, 122, 0.15)',
           border: '1px solid #e2e8f0',
+          m: { xs: 1, sm: 2 },
         },
       }}
     >
@@ -152,11 +154,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
         sx={{ 
           background: 'linear-gradient(135deg, #22577a 0%, #2d7d90 100%)',
           color: 'white',
-          padding: '24px 32px',
+          padding: { xs: '16px', sm: '24px 32px' },
           borderRadius: '16px 16px 0 0',
           display: 'flex', 
           justifyContent: 'space-between', 
-          alignItems: 'center',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 2, sm: 0 },
           boxShadow: '0 2px 8px rgba(34, 87, 122, 0.2)',
         }}
       >
@@ -182,7 +186,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
           </Box>
         </Box>
         
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: { xs: '100%', sm: 'auto' }, justifyContent: { xs: 'space-between', sm: 'flex-end' }, flexWrap: 'wrap' }}>
           {notifications.length > 0 && (
             <Button
               variant="outlined"
@@ -193,6 +197,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
               sx={{ 
                 color: 'white',
                 borderColor: 'rgba(255, 255, 255, 0.3)',
+                width: { xs: '100%', sm: 'auto' },
                 '&:hover': {
                   borderColor: 'rgba(255, 255, 255, 0.6)',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -230,7 +235,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
       <DialogContent sx={{ p: 0, backgroundColor: '#f8fafc' }}>
         {notifications.length === 0 ? (
           <Box sx={{ 
-            p: 6, 
+            p: { xs: 3, sm: 6 }, 
             textAlign: 'center',
             backgroundColor: 'white',
           }}>
@@ -259,8 +264,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
                   elevation={0}
                   sx={{
                     mb: index === notifications.length - 1 ? 0 : 1,
-                    mx: 2,
-                    mt: index === 0 ? 2 : 0,
+                    mx: { xs: 1, sm: 2 },
+                    mt: index === 0 ? { xs: 1, sm: 2 } : 0,
                     borderRadius: '12px',
                     overflow: 'hidden',
                     border: '1px solid #e2e8f0',
@@ -277,8 +282,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
                     sx={{
                       display: 'flex',
                       alignItems: 'flex-start',
-                      py: 3,
-                      px: 3,
+                      py: { xs: 2, sm: 3 },
+                      px: { xs: 2, sm: 3 },
                       backgroundColor: 'white',
                       position: 'relative',
                       cursor: 'pointer',
@@ -295,10 +300,10 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
                   >
                     <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%', ml: 1 }}>
                       <Avatar sx={{ 
-                        mr: 2, 
+                        mr: { xs: 1.5, sm: 2 }, 
                         mt: 0.5,
-                        width: 48,
-                        height: 48,
+                        width: { xs: 38, sm: 48 },
+                        height: { xs: 38, sm: 48 },
                         bgcolor: getSeverityColor(notification.message) === 'warning' 
                           ? 'rgba(245, 158, 11, 0.1)' 
                           : 'rgba(87, 204, 153, 0.1)',
@@ -308,10 +313,11 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
                       </Avatar>
                       
                       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
                           <Typography variant="subtitle1" component="div" sx={{ 
                             fontWeight: 600, 
                             color: '#0d2230',
+                            fontSize: { xs: '0.95rem', sm: '1rem' },
                           }}>
                             Nueva Notificación
                           </Typography>
@@ -335,7 +341,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ open, onClose }) 
                             lineHeight: 1.6,
                             wordWrap: 'break-word',
                             mb: 2,
-                            fontSize: '0.95rem',
+                            fontSize: { xs: '0.88rem', sm: '0.95rem' },
                           }}
                         >
                           {notification.message}

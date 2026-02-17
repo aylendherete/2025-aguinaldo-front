@@ -38,6 +38,8 @@ export interface ProfileMachineContext {
     specialty: string | null;
     medicalLicense: string | null;
     slotDurationMin: number | null;
+    healthInsurance: string | null;
+    healthPlan: string | null;
   };
   formErrors: Record<string, string>;
 }
@@ -60,6 +62,8 @@ export const ProfileMachineDefaultContext: ProfileMachineContext = {
     specialty: null,
     medicalLicense: null,
     slotDurationMin: null,
+    healthInsurance: null,
+    healthPlan: null,
   },
   formErrors: {},
 };
@@ -87,6 +91,8 @@ const buildValidationContext = (
     specialty: formValues.specialty ?? null,
     medicalLicense: formValues.medicalLicense ?? null,
     slotDurationMin: formValues.slotDurationMin ?? null,
+    healthInsurance: formValues.healthInsurance ?? null,
+    healthPlan: formValues.healthPlan ?? null,
   },
   formErrors: {},
   authResponse: null,
@@ -221,6 +227,8 @@ export const profileMachine = createMachine({
                 specialty: profile.specialty || null,
                 medicalLicense: profile.medicalLicense || null,
                 slotDurationMin: profile.slotDurationMin || null,
+                healthInsurance: profile.healthInsurance || null,
+                healthPlan: profile.healthPlan || null,
               };
             },
             formErrors: () => ({}),
@@ -292,6 +300,8 @@ export const profileMachine = createMachine({
                   specialty: profile.specialty || null,
                   medicalLicense: profile.medicalLicense || null,
                   slotDurationMin: profile.slotDurationMin || null,
+                  healthInsurance: profile.healthInsurance || null,
+                  healthPlan: profile.healthPlan || null,
                 };
               },
               formErrors: () => ({}),

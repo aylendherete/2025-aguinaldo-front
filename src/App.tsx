@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 import { useMachines } from './providers/MachineProvider'
 import ConfirmationModal from './components/shared/ConfirmationModal/ConfirmationModal'
 import RatingModal from './components/shared/RatingModal/RatingModal';
+import PaymentRegister from './components/Doctor/DoctorPaymentRegister/PaymentRegister'
 
 function AppContent() {
   const { authState } = useAuthMachine();
@@ -67,6 +68,7 @@ function AppContent() {
           <Route path="/doctor/badges" element={<DoctorBadges />} />
           <Route path="/patient-detail" element={<PatientDetails />} />
           <Route path="/doctor/turns-modifications" element={<TurnsModifications />} />
+          <Route path="/doctor/payment-register" element={<PaymentRegister />} />
         </>
       ) : (
         <Route path="/pending-activation" element={<PendingActivation />} />

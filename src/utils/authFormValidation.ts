@@ -1,4 +1,5 @@
 import { dayjsArgentina, nowArgentina } from './dateTimeUtils';
+import { HEALTH_INSURANCE_LIST, HEALTH_INSURANCE_PLANS } from './healthCoverage';
 import type { AuthMachineContext } from "../machines/authMachine";
 
 
@@ -7,10 +8,14 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
     return "";
   }
 
+  const isOptionalCoverageField = key.includes("healthInsurance") || key.includes("healthPlan");
+
   // Required field validation
-  if (!value || value === null || value === undefined || value === "") {
+  if (!isOptionalCoverageField && (!value || value === null || value === undefined || value === "")) {
     return "Campo requerido";
   }
+
+  const isCoverageValueEmpty = value === null || value === undefined || value === "";
 
   // Email validation
   if (key.includes("email")) {
@@ -120,6 +125,43 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
     return "";
   }
 
+  if (key.includes("healthInsurance")) {
+    if (isCoverageValueEmpty) {
+      return "";
+    }
+
+    const normalizedInsurance = value.toString().trim().toUpperCase();
+    if (!HEALTH_INSURANCE_LIST.includes(normalizedInsurance)) {
+      return "Obra social inválida";
+    }
+    return "";
+  }
+
+  if (key.includes("healthPlan")) {
+    const insuranceValue = context.formValues?.healthInsurance;
+
+    if (insuranceValue && isCoverageValueEmpty) {
+      return "Debe seleccionar un plan para la obra social";
+    }
+
+    if (isCoverageValueEmpty) {
+      return "";
+    }
+
+    const normalizedPlan = value.toString().trim().toUpperCase();
+
+    if (!insuranceValue) {
+      return "Debe seleccionar una obra social";
+    }
+
+    const normalizedInsurance = insuranceValue.toString().trim().toUpperCase();
+    const plans = HEALTH_INSURANCE_PLANS[normalizedInsurance];
+    if (!plans || !plans.includes(normalizedPlan)) {
+      return "Plan inválido para la obra social";
+    }
+    return "";
+  }
+
   // Slot duration validation
   if (key.includes("slotDurationMin")) {
     const duration = parseInt(value);
@@ -155,5 +197,11 @@ export const checkFormValidation = (context: AuthMachineContext): boolean => {
     return !value || (typeof value === 'string' && value.trim() === '');
   });
 
-  return hasErrors || hasEmptyFields;
+  const hasInsuranceWithoutPlan =
+    context.mode === "register" &&
+    context.isPatient &&
+    !!context.formValues.healthInsurance &&
+    (!context.formValues.healthPlan || context.formValues.healthPlan.trim() === "");
+
+  return hasErrors || hasEmptyFields || hasInsuranceWithoutPlan;
 };

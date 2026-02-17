@@ -60,6 +60,7 @@ export interface TurnMachineContext {
   showTurns: {
     dateSelected: Dayjs | null;
     statusFilter: string;
+    statusPaymentFilter?: string | null;
   };
 
   modifyTurn?: {
@@ -252,6 +253,7 @@ export const turnMachine = createMachine({
     showTurns: {
       dateSelected: null,
       statusFilter: "",
+      statusPaymentFilter: null,
     },
     modifyTurn: {
       turnId: null,
@@ -358,6 +360,7 @@ export const turnMachine = createMachine({
                 showTurns: { 
                   dateSelected: null,
                   statusFilter: "",
+                  statusPaymentFilter: null,
                 },
               }),
             },

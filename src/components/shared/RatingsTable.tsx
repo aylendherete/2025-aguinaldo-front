@@ -104,10 +104,10 @@ export default function RatingsTable({
 
       {/* Filter Section */}
       {filterConfig ? (
-        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+        <Box className="ratings-filter-row">
           <Autocomplete
             size="small"
-            sx={{ minWidth: 250, flex: 1 }}
+            className="ratings-filter-autocomplete"
             value={filterConfig.filterOptions.find(option => option.id === filterConfig.selectedFilterId) || null}
             onChange={(_, newValue) => {
               filterConfig.onFilterChange(newValue ? newValue.id : 'all');
@@ -172,7 +172,7 @@ export default function RatingsTable({
           </Typography>
         </Box>
       ) : (
-        <TableContainer className="ratings-table-container" sx={{ overflow: 'visible' }}>
+        <TableContainer className="ratings-table-container">
           <Table className="ratings-table">
             <TableHead>
               <TableRow className="table-header">

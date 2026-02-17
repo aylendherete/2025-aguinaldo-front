@@ -5,6 +5,12 @@
   margin: 0;
 }
 
+@media (max-width: 768px) {
+  .doctors-content {
+    padding: 0 0.25rem;
+  }
+}
+
 /* Main container for AdminDoctors */
 .doctors-admin-container {
   display: flex;

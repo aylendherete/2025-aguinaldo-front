@@ -58,7 +58,11 @@ const TurnsModifications: React.FC = () => {
         </Box>
       </Box>
 
-      <Box maxWidth="lg" className="pending-content-container" sx={{ mx: 'auto', px: 3 }}>
+      <Box
+        maxWidth="lg"
+        className="pending-content-container"
+        sx={{ mx: 'auto', px: { xs: 1.5, sm: 2, md: 3 } }}
+      >
         {/* Pending Turn Modification Requests */}
         { (isLoadingRequest || loadingApprove || loadingReject) ? (
           <Box className="pending-empty-state">
@@ -73,6 +77,7 @@ const TurnsModifications: React.FC = () => {
               <Chip
                 label={`${pendingModifyRequests.length} solicitud(es) pendiente(s)`}
                 className="pending-status-chip"
+                sx={{ width: { xs: '100%', sm: 'auto' }, maxWidth: { xs: '100%', sm: 'fit-content' } }}
               />
             </Box>
 
@@ -107,13 +112,13 @@ const TurnsModifications: React.FC = () => {
                     })}
                     isLoading={uiState.context.toggleStates.loadingApprove === request.id || uiState.context.toggleStates.loadingReject === request.id}
                   >
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.82rem', sm: '0.875rem' }, lineHeight: 1.5 }}>
                       <strong>Fecha actual:</strong> {formatDateTime(request.currentScheduledAt, "DD/MM/YYYY HH:mm")}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.82rem', sm: '0.875rem' }, lineHeight: 1.5 }}>
                       <strong>Fecha solicitada:</strong> {formatDateTime(request.requestedScheduledAt, "DD/MM/YYYY HH:mm")}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.82rem', sm: '0.875rem' }, lineHeight: 1.5 }}>
                       <strong>Cambio:</strong> {
                         isDateChange && isTimeChange ? 'Nueva fecha y horario' :
                         isDateChange ? 'Nueva fecha' :

@@ -1,5 +1,5 @@
 
-import { Box, Button, Card, CardContent, Divider, List, ListItem, ListItemText, Typography, CircularProgress } from "@mui/material";
+import { Box, Button, Card, CardContent, Divider, List, ListItem, ListItemText, Typography, CircularProgress, Autocomplete, TextField, Stack } from "@mui/material";
 
 import { useAuthMachine } from "#/providers/AuthProvider";
 import { SignInResponse } from "#/models/Auth";
@@ -10,6 +10,7 @@ import { useMachines } from "#/providers/MachineProvider";
 import EditField from "./EditField";
 import { useEffect } from "react";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { HEALTH_INSURANCE_LIST, getHealthPlansForInsurance } from "#/utils/healthCoverage";
 const MotionCard = motion.create(Card);
 
 
@@ -17,20 +18,50 @@ const ProfileScreen: React.FC = () => {
     const { authState } = useAuthMachine();
     const { uiState, profileState, profileSend } = useMachines();
     const user = authState?.context?.authResponse as SignInResponse | null;
-    const profile = profileState?.context?.profile;
+    const profileContext = profileState?.context;
+    const profile = profileContext?.profile;
+    const formErrors = profileContext?.formErrors || {};
     const uiContext = uiState?.context || {};
 
     const formContext = uiContext.toggleStates || {};
-    const name= formContext["editName"] ?? false;
-    const surname= formContext["editSurname"] ?? false;
-    const phone= formContext["editNumberPhone"] ?? false;
-    const minutes= formContext["editMinutes"] ?? false;
-    const gender= formContext["editGender"] ?? false;
-    const birthdate= formContext["editBirthdate"] ?? false;
+    const name = formContext["editName"] ?? false;
+    const surname = formContext["editSurname"] ?? false;
+    const phone = formContext["editNumberPhone"] ?? false;
+    const minutes = formContext["editMinutes"] ?? false;
+    const gender = formContext["editGender"] ?? false;
+    const birthdate = formContext["editBirthdate"] ?? false;
+    const editHealthCoverage = formContext["editHealthCoverage"] ?? false;
+
+    const normalizeChoice = (value: string | null | undefined) => {
+        if (typeof value !== "string") {
+            return null;
+        }
+        const trimmed = value.trim();
+        return trimmed.length ? trimmed.toUpperCase() : null;
+    };
+
+    const currentInsurance = normalizeChoice(profileContext?.formValues?.healthInsurance ?? profile?.healthInsurance ?? null);
+    const currentPlan = normalizeChoice(profileContext?.formValues?.healthPlan ?? profile?.healthPlan ?? null);
+    const healthInsuranceOptions = HEALTH_INSURANCE_LIST;
+    const healthPlanOptions = getHealthPlansForInsurance(currentInsurance);
+    const hasInsuranceSelected = Boolean(currentInsurance);
     
     useEffect(() => {
         profileSend({ type: "INIT_PROFILE_PAGE" });
     }, [profileSend]);
+
+    const handleHealthInsuranceChange = (rawValue: string) => {
+        const normalizedValue = normalizeChoice(rawValue);
+        profileSend({ type: "UPDATE_FORM", key: "healthInsurance", value: normalizedValue });
+        if (normalizedValue !== currentInsurance) {
+            profileSend({ type: "UPDATE_FORM", key: "healthPlan", value: null });
+        }
+    };
+
+    const handleHealthPlanChange = (rawValue: string) => {
+        const normalizedValue = normalizeChoice(rawValue);
+        profileSend({ type: "UPDATE_FORM", key: "healthPlan", value: normalizedValue });
+    };
 
     return (
         <Box
@@ -110,6 +141,72 @@ const ProfileScreen: React.FC = () => {
                                                             onChange={(val) => profileSend({ type: "UPDATE_FORM", key: "gender", value: val })}
                                                         />
                             <EditField key="birthdate" label="Fecha de nacimiento" value={profile.birthdate} isEditing={birthdate} toggleKey="editBirthdate" fieldKey="birthdate" onChange={(val) => profileSend({ type: "UPDATE_FORM", key: "birthdate", value: val })}/>
+
+
+
+                            {user?.role === 'PATIENT' && (
+                                <>
+                                <EditField
+                                    key="healthCoverage"
+                                    label="Cobertura Médica"
+                                    value={profile.healthInsurance ?? ""}
+                                    displayValue={(() => {
+                                        const insuranceLabel = profile.healthInsurance ? `Obra social: ${profile.healthInsurance}` : "Obra social: -";
+                                        const planLabel = profile.healthPlan ? `Plan: ${profile.healthPlan}` : "Plan: -";
+                                        return `${insuranceLabel} | ${planLabel}`;
+                                    })()}
+                                    isEditing={editHealthCoverage}
+                                    toggleKey="editHealthCoverage"
+                                    fieldKey="healthInsurance"
+                                    onChange={handleHealthInsuranceChange}
+                                    renderInput={({ value, onChange, error, helperText, isUpdating }) => (
+                                        <Stack spacing={2}>
+                                            <Autocomplete
+                                                options={healthInsuranceOptions}
+                                                value={value ? value : null}
+                                                onChange={(_, newValue) => {
+                                                    const nextValue = typeof newValue === "string" ? newValue : "";
+                                                    onChange(nextValue);
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Obra Social"
+                                                        size="small"
+                                                        fullWidth
+                                                        error={error}
+                                                        helperText={helperText || " "}
+                                                    />
+                                                )}
+                                                disabled={isUpdating}
+                                            />
+                                            <Autocomplete
+                                                options={healthPlanOptions}
+                                                value={currentPlan ? currentPlan : null}
+                                                onChange={(_, newValue) => {
+                                                    const nextValue = typeof newValue === "string" ? newValue : "";
+                                                    handleHealthPlanChange(nextValue);
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Plan de Salud"
+                                                        size="small"
+                                                        fullWidth
+                                                        error={Boolean(formErrors.healthPlan)}
+                                                        helperText={formErrors.healthPlan || (hasInsuranceSelected ? " " : "Selecciona primero una obra social")}
+                                                        placeholder={hasInsuranceSelected ? undefined : "Selecciona primero una obra social"}
+                                                    />
+                                                )}
+                                                disabled={!hasInsuranceSelected || isUpdating}
+                                            />
+                                        </Stack>
+                                    )}
+                                />
+
+                                </>
+                            )}
+
 
                             {user?.role === 'DOCTOR' && (
                             <>

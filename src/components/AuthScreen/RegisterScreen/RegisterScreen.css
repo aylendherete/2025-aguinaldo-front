@@ -74,6 +74,29 @@
   color: #22577a;
 }
 
+.register-patient-section {
+  padding: 24px;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 2px solid #e0f2fe;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.register-patient-title {
+  font-weight: 600;
+  margin-bottom: 16px !important;
+  color: #22577a;
+}
+
+.register-patient-section .register-form-row {
+  gap: 16px;
+}
+
+.register-patient-section .MuiAutocomplete-root {
+  width: 100%;
+}
+
 /* Two-column form layout for larger screens */
 .register-form-row {
   display: flex;

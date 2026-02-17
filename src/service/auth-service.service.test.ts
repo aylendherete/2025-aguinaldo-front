@@ -76,7 +76,10 @@ describe('AuthService', () => {
       password_confirm: 'password123',
       phone: '123456789',
       specialty: null,
-      medicalLicense: null
+      medicalLicense: null,
+      slotDurationMin: null,
+      healthInsurance: 'OSDE',
+      healthPlan: '210'
     };
 
     const mockRegisterResponse: RegisterResponse = {
@@ -161,7 +164,9 @@ describe('AuthService', () => {
       password_confirm: 'password123',
       phone: '987654321',
       specialty: 'Cardiology',
-      medicalLicense: 'LIC123456'
+      medicalLicense: 'LIC123456',
+      healthInsurance: null,
+      healthPlan: null
     };
 
     const mockRegisterResponse: RegisterResponse = {

@@ -1,12 +1,16 @@
 import { dayjsArgentina, nowArgentina } from './dateTimeUtils';
 
-export function filterTurns (myTurns: any, statusFilter: any) {
+export function filterTurns (myTurns: any, statusFilter: any, paymentStatusFilter?: string | null) {
     return myTurns.filter((turn: any) => {
       let matchesStatus = true;
       if (statusFilter) {
         matchesStatus = turn.status === statusFilter;
       }
-      return matchesStatus;
+      let matchesPaymentStatus = true;
+      if (paymentStatusFilter) {
+        matchesPaymentStatus = turn.paymentRegister?.paymentStatus === paymentStatusFilter;
+      }
+      return matchesStatus && matchesPaymentStatus;
     })
     .sort((a: any, b: any) => {
       const getStatusPriority = (turn: any) => {

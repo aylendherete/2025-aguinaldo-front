@@ -57,7 +57,9 @@ describe('profileMachineUtils', () => {
           birthdate: '1990-01-01',
           specialty: 'CARDIOLOGY',
           medicalLicense: 'LIC123',
-          slotDurationMin: 30
+          slotDurationMin: 30,
+          healthInsurance: 'OSDE',
+          healthPlan: '210'
         }
       }
       const mockResponse = { success: true }
@@ -75,7 +77,9 @@ describe('profileMachineUtils', () => {
         birthdate: '1990-01-01',
         specialty: 'CARDIOLOGY',
         medicalLicense: 'LIC123',
-        slotDurationMin: 30
+        slotDurationMin: 30,
+        healthInsurance: 'OSDE',
+        healthPlan: '210'
       })
       expect(result).toEqual(mockResponse)
     })
@@ -94,7 +98,9 @@ describe('profileMachineUtils', () => {
           birthdate: '1990-01-01',
           specialty: null,
           medicalLicense: null,
-          slotDurationMin: 30
+          slotDurationMin: 30,
+          healthInsurance: null,
+          healthPlan: ''
         }
       }
       const mockResponse = { success: true }

@@ -26,6 +26,7 @@ import Logo from "#/assets/favicon.svg";
 import dayjs from '#/utils/dayjs.config';
 import 'dayjs/locale/es';
 import { dayjsArgentina, nowArgentina } from '#/utils/dateTimeUtils';
+import { HEALTH_INSURANCE_LIST, getHealthPlansForInsurance } from '#/utils/healthCoverage';
 import "./RegisterScreen.css";
 
 dayjs.locale('es');
@@ -95,6 +96,8 @@ const specialties = [
   "UROLOGÍA"
 ];
 
+const healthInsuranceOptions = HEALTH_INSURANCE_LIST;
+
 function RegisterScreen() {
   const { authState, authSend } = useAuthMachine();
   const authContext = authState.context;
@@ -105,6 +108,9 @@ function RegisterScreen() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const selectedInsurance = authContext.formValues.healthInsurance ?? null;
+  const healthPlanOptions = getHealthPlansForInsurance(selectedInsurance);
+  const selectedHealthPlan = authContext.formValues.healthPlan ?? null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -372,6 +378,62 @@ function RegisterScreen() {
                       autoComplete="new-password"
                     />
                   </Stack>
+
+                  {isPatient && (
+                    <Box className="register-patient-section">
+                      <Typography variant="h6" className="register-patient-title">
+                        Cobertura Médica
+                      </Typography>
+                      <Stack spacing={0}>
+                        <Autocomplete
+                          options={healthInsuranceOptions}
+                          value={authContext.formValues.healthInsurance || null}
+                          onChange={(_, newValue) => {
+                            const normalizedInsurance = newValue ? newValue.trim().toUpperCase() : null;
+                            authSend({ type: "UPDATE_FORM", key: "healthInsurance", value: normalizedInsurance });
+                            if (normalizedInsurance !== selectedInsurance) {
+                              authSend({ type: "UPDATE_FORM", key: "healthPlan", value: null });
+                            }
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Obra Social"
+                              name="healthInsurance"
+                              fullWidth
+                              error={!!authContext.formErrors?.healthInsurance}
+                              helperText={authContext.formErrors?.healthInsurance || "Opcional"}
+                              className="auth-field"
+                            />
+                          )}
+                          className="auth-field"
+                          
+                        />
+                        <Autocomplete
+                          options={healthPlanOptions}
+                          value={selectedHealthPlan}
+                          
+                          onChange={(_, newValue) => {
+                            authSend({ type: "UPDATE_FORM", key: "healthPlan", value: newValue ? newValue.trim().toUpperCase() : null });
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Plan"
+                              name="healthPlan"
+                              fullWidth
+                              error={!!authContext.formErrors?.healthPlan}
+                              helperText={authContext.formErrors?.healthPlan || (selectedInsurance ? "Requerido si seleccionás obra social" : "Opcional")}
+                              className="auth-field"
+                              placeholder={selectedInsurance ? "Selecciona un plan" : "Selecciona primero una obra social"}
+                            />
+                          )}
+                          className="auth-field"
+                          disabled={!selectedInsurance}
+                          />
+                      </Stack>
+                    </Box>
+                  )}
 
                   {/* Doctor-specific fields */}
                   {!isPatient && (

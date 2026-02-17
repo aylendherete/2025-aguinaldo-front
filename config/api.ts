@@ -52,6 +52,9 @@ export const API_CONFIG = {
     DELETE_NOTIFICATION: '/api/notifications/{notificationId}',
     GET_DOCTOR_AVAILABILITY: '/api/doctors/{doctorId}/availability',
     UPDATE_MEDICAL_HISTORY: '/api/doctors/{doctorId}/patients/medical-history',
+    GET_PAYMENT_REGISTER: '/api/payments/turn',
+    UPDATE_PAYMENT_REGISTER: '/api/payments/turn',
+    CANCEL_PAYMENT_REGISTER: '/api/payments/turn',
     
   
     ADD_MEDICAL_HISTORY: '/api/doctors/{doctorId}/medical-history',
