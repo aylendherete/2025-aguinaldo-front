@@ -9,7 +9,8 @@ import {
   ExitToApp as ExitIcon,
   BarChart as BarChartIcon,
   EmojiEvents as TrophyIcon,
-  WorkspacePremium as WorkspacePremiumIcon
+  WorkspacePremium as WorkspacePremiumIcon,
+  AccountBalanceWallet as AccountBalanceWalletIcon
 } from '@mui/icons-material';
 
 export interface MenuItem {
@@ -64,6 +65,12 @@ export const getDoctorMenuItems = (handleLogout: () => void): MenuItem[] => [
     title: 'Solicitudes',
     iconComponent: NotificationsIcon,
     path: '/doctor/turns-modifications'
+  },
+  {
+    id:'payment-register',
+    title: 'Registro de Pagos',
+    iconComponent: AccountBalanceWalletIcon,
+    path: '/doctor/payment-register'
   },
   {
     id: 'metrics',
