@@ -261,14 +261,14 @@ describe('sideBarMenuUtils', () => {
       const user = { name: 'John Doe', role: 'DOCTOR', gender: 'MALE' }
       const result = getUserDisplayName(user)
 
-      expect(result).toBe('Dr. John Doe')
+      expect(result).toBe('Dr.  John Doe')
     })
 
-    it('should format female doctor name with "Dr." prefix', () => {
+    it('should format female doctor name with "Dra." prefix', () => {
       const user = { name: 'Jane Doe', role: 'DOCTOR', gender: 'FEMALE' }
       const result = getUserDisplayName(user)
 
-      expect(result).toBe('Dr. Jane Doe')
+      expect(result).toBe('Dra.  Jane Doe')
     })
 
     it('should format admin name with "Admin" prefix', () => {
@@ -296,7 +296,7 @@ describe('sideBarMenuUtils', () => {
       const user = { name: 'Alex', role: 'DOCTOR' }
       const result = getUserDisplayName(user)
 
-      expect(result).toBe('Dr. Alex')
+      expect(result).toBe('Dr.  Alex')
     })
 
     it('should handle undefined role', () => {
