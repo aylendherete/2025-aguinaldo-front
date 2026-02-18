@@ -447,281 +447,6 @@
   background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
 }
 
-@media (max-width: 768px) {
-  .doctor-viewturns-header {
-    margin-bottom: 16px;
-    padding: 12px;
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
-
-  .doctor-viewturns-header-layout {
-    gap: 12px;
-  }
-
-  .doctor-viewturns-header-content {
-    flex: 1;
-    justify-content: center;
-    margin: 0;
-  }
-
-  .doctor-viewturns-header-icon {
-    width: 48px !important;
-    height: 48px !important;
-  }
-
-  .doctor-viewturns-header-title {
-    font-size: 1.5rem !important;
-  }
-
-  .doctor-viewturns-content,
-  .doctor-viewturns-filters-section,
-  .doctor-viewturns-list-section {
-    padding: 16px !important;
-  }
-
-  .doctor-viewturns-turn-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .doctor-viewturns-turn-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .doctor-viewturns-filters-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .doctor-viewturns-filter-select {
-    min-width: 100% !important;
-  }
-
-  .doctor-viewturns-actions {
-    flex-direction: column-reverse;
-    gap: 8px;
-  }
-
-  .doctor-viewturns-btn-close {
-    width: 100%;
-  }
-
-  .doctor-viewturns-list-content {
-    max-height: 300px;
-  }
-
-  .doctor-viewturns-calendar-container {
-    padding: 12px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .doctor-viewturns-header {
-    padding: 8px;
-    margin-bottom: 12px;
-  }
-
-  .doctor-viewturns-header-title {
-    font-size: 1.25rem !important;
-  }
-
-  .doctor-viewturns-header-subtitle {
-    display: none !important;
-  }
-
-  .doctor-viewturns-content,
-  .doctor-viewturns-filters-section {
-    padding: 12px !important;
-  }
-
-  .doctor-viewturns-turn-item {
-    padding: 16px !important;
-  }
-
-  .doctor-viewturns-cancel-btn {
-    padding: 4px 8px !important;
-    font-size: 0.8rem !important;
-  }
-
-  .doctor-viewturns-complete-btn {
-    padding: 4px 8px !important;
-    font-size: 0.8rem !important;
-  }
-
-  .doctor-viewturns-noshow-btn {
-    padding: 4px 8px !important;
-    font-size: 0.8rem !important;
-  }
-
-  .doctor-viewturns-absent-btn {
-    padding: 4px 8px !important;
-    font-size: 0.8rem !important;
-  }
-
-/* Patient Info */
-.doctor-viewturns-patient-info {
-  margin-bottom: 12px !important;
-}
-
-.doctor-viewturns-patient-name {
-  color: var(--gunmetal) !important;
-  font-weight: 500 !important;
-  margin-bottom: 4px !important;
-}
-
-.doctor-viewturns-turn-reason {
-  color: var(--slate-gray) !important;
-  font-style: italic !important;
-}
-
-/* Buttons - consistent with ViewTurns */
-.doctor-viewturns-action-button {
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease !important;
-  border: 1px solid transparent !important;
-}
-
-.doctor-viewturns-modify-button {
-  background: var(--tea-green) !important;
-  color: var(--gunmetal) !important;
-  border: 1px solid var(--tea-green) !important;
-}
-
-.doctor-viewturns-modify-button:hover {
-  background: var(--cerulean-3) !important;
-  border-color: var(--cerulean-2) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 123, 191, 0.3) !important;
-}
-
-.doctor-viewturns-cancel-button {
-  background: #ef4444 !important;
-  color: white !important;
-  border: 1px solid #ef4444 !important;
-}
-
-.doctor-viewturns-cancel-button:hover {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
-}
-
-.doctor-viewturns-details-button {
-  background: transparent !important;
-  color: var(--cerulean-2) !important;
-  border: 1px solid var(--cerulean-2) !important;
-  margin-top: 8px !important;
-}
-
-.doctor-viewturns-details-button:hover {
-  background: var(--cerulean-2) !important;
-  color: white !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 123, 191, 0.3) !important;
-}
-
-/* Rating Container Update */
-.doctor-viewturns-rating-container {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  margin-top: 8px !important;
-  padding: 8px 12px !important;
-  background: var(--light-gray) !important;
-  border-radius: 6px !important;
-  border: 1px solid var(--tea-green) !important;
-}
-
-.doctor-viewturns-rating-label {
-  color: var(--gunmetal) !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-}
-
-/* Loading State Update */
-.doctor-viewturns-loading-container {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 12px !important;
-  padding: 40px 20px !important;
-  color: var(--slate-gray) !important;
-}
-
-.doctor-viewturns-loading-text {
-  color: var(--slate-gray) !important;
-}
-
-/* Empty State Update */
-.doctor-viewturns-empty-state {
-  text-align: center;
-  padding: 16px 0;
-  color: #64748b;
-}
-
-.doctor-viewturns-empty-icon {
-  width: 80px !important;
-  height: 80px !important;
-  margin: 0 auto 16px auto !important;
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%) !important;
-}
-
-.doctor-viewturns-empty-icon .MuiSvgIcon-root {
-  color: white !important;
-  font-size: 40px !important;
-}
-
-/* Responsive Design Updates */
-@media (max-width: 768px) {
-  .shared-container {
-    padding: 12px !important;
-    margin: 0 8px !important;
-  }
-
-  .shared-header h1 {
-    font-size: 24px !important;
-  }
-
-  .shared-filters {
-    flex-direction: column !important;
-  }
-
-  .doctor-viewturns-list-section {
-    padding: 16px !important;
-  }
-
-  .doctor-viewturns-turn-content {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-  }
-
-  .doctor-viewturns-turn-actions {
-    align-items: stretch !important;
-  }
-
-  .doctor-viewturns-main-actions {
-    justify-content: stretch !important;
-  }
-
-  .doctor-viewturns-action-button {
-    flex: 1 !important;
-  }
-
-  .doctor-viewturns-details-button {
-    margin-top: 12px !important;
-  }
-}
-}
-
-
 .doctor-viewturns-payment-status-chip {
   font-weight: 600 !important;
   border-radius: 6px !important;
@@ -745,6 +470,64 @@
 .doctor-viewturns-payment-status-chip.payment-status-bonus {
   background: #f8fad1 !important;
   color: #a86002 !important;
+}
+
+@media (max-width: 768px) {
+  .doctor-viewturns-content {
+    padding: 16px !important;
+  }
+
+  .doctor-viewturns-turn-item {
+    padding: 20px !important;
+  }
+
+  .doctor-viewturns-turn-content {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .doctor-viewturns-turn-actions {
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-viewturns-content {
+    padding: 12px !important;
+  }
+
+  .doctor-viewturns-turn-item {
+    padding: 16px !important;
+  }
+
+  .doctor-viewturns-turn-datetime {
+    font-size: 1rem !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .doctor-viewturns-turn-actions {
+    align-items: stretch !important;
+  }
+
+  .doctor-viewturns-main-actions {
+    flex-direction: column !important;
+    gap: 12px !important;
+    justify-content: stretch !important;
+  }
+
+  .doctor-viewturns-cancel-btn,
+  .doctor-viewturns-complete-btn,
+  .doctor-viewturns-noshow-btn,
+  .doctor-viewturns-rate-btn {
+    width: 100% !important;
+    padding: 10px 16px !important;
+    font-size: 0.9rem !important;
+    margin-left: 0 !important;
+  }
 }
 
 
