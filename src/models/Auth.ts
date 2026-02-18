@@ -37,6 +37,7 @@ export interface SignInResponse {
   surname: string;
   role: "PATIENT" | "DOCTOR" | "ADMIN";
   status: string;
+  gender: "FEMALE" | "MALE";
   accessToken: string;
   refreshToken: string;
 }

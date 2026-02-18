@@ -94,7 +94,7 @@ const DoctorMetrics: React.FC = () => {
               </Avatar>
               <Box>
                 <Typography variant="h4" component="h1" className="shared-header-title">
-                  Métricas del Dr. {user.name || 'Doctor'}
+                  Métricas de {user?.gender === "FEMALE" ? "Dra. " : "Dr. "} {user?.name || 'Doctor'}
                 </Typography>
                 <Typography variant="h6" className="shared-header-subtitle doctor-header-subtitle">
                   Estadísticas detalladas de tu actividad médica

@@ -78,7 +78,7 @@ const DoctorDashboard: React.FC = () => {
               </Avatar>
               <Box>
                 <Typography variant="h4" component="h1" className="dashboard-header-title">
-                  Hola, Dr. {user.name|| 'Doctor'} {user.surname|| 'Apellido'}
+                  Hola, {user?.gender === "FEMALE" ? "Dra. " : "Dr. "} {user?.name || 'Doctor'} {user?.surname || 'Apellido'}
                 </Typography>
                 <Typography variant="h6" className="dashboard-header-subtitle doctor-header-subtitle">
                   Gestiona tus turnos y pacientes

@@ -62,7 +62,7 @@ export default function PendingScreen() {
                 <PendingCard
                   key={doctor.id}
                   id={doctor.id}
-                  title={`Dr. ${doctor.name} ${doctor.surname}`}
+                  title={`${doctor.gender === "FEMALE" ? "Dra. " : "Dr. "} ${doctor.name} ${doctor.surname}`}
                   avatarContent={<PersonIcon sx={{ fontSize: 28 }} />}
                   onApprove={(id) => adminUserSend({ 
                     type: 'APPROVE_DOCTOR', 

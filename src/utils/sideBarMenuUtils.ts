@@ -201,7 +201,7 @@ export const getUserDisplayName = (user: any): string => {
   
   switch (role) {
     case 'DOCTOR':
-      return `Dr. ${name}`;
+      return `${user.gender === "FEMALE" ? "Dra. " : "Dr. "} ${name}`;
     case 'ADMIN':
       return `Admin ${name}`;
     case 'PATIENT':
