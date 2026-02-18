@@ -49,10 +49,153 @@ describe('BadgeService', () => {
       expect(result.progress).toEqual(mockResponse);
     });
 
+    it('should map and keep only earned+active DOCTOR badges', async () => {
+      const doctorProgress: BadgeProgress[] = [
+        {
+          badgeType: 'DOCTOR_EXCELLENT_COLLABORATOR',
+          badgeName: 'Colaborador Excelente',
+          category: BadgeCategory.QUALITY_OF_CARE,
+          rarity: 'RARE',
+          description: 'Descripción',
+          icon: '💬',
+          color: '#4CAF50',
+          criteria: 'Criterio',
+          earned: true,
+          progressPercentage: 100,
+          statusMessage: '¡Logro obtenido!',
+          earnedAt: '2024-01-10T10:00:00Z',
+          isActive: true,
+          lastEvaluatedAt: '2024-01-10T10:00:00Z'
+        },
+        {
+          badgeType: 'DOCTOR_MEDICAL_LEGEND',
+          badgeName: 'Leyenda Médica',
+          category: BadgeCategory.CONSISTENCY,
+          rarity: 'LEGENDARY',
+          description: 'Descripción',
+          icon: '🏆',
+          color: '#FFD700',
+          criteria: 'Criterio',
+          earned: true,
+          progressPercentage: 100,
+          statusMessage: '¡Logro obtenido!',
+          earnedAt: '2024-01-10T10:00:00Z',
+          isActive: false,
+          lastEvaluatedAt: '2024-01-10T10:00:00Z'
+        },
+        {
+          badgeType: 'DOCTOR_TOP_SPECIALIST',
+          badgeName: 'Top Specialist',
+          category: BadgeCategory.PROFESSIONALISM,
+          rarity: 'EPIC',
+          description: 'Descripción',
+          icon: '⭐',
+          color: '#9C27B0',
+          criteria: 'Criterio',
+          earned: false,
+          progressPercentage: 70,
+          statusMessage: 'En progreso',
+          isActive: true,
+          lastEvaluatedAt: '2024-01-10T10:00:00Z'
+        }
+      ];
+
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(doctorProgress)
+      });
+
+      const result = await BadgeService.getCombinedBadgeData('doctor-token', 'doctor-99');
+
+      expect(result.progress).toEqual(doctorProgress);
+      expect(result.badges).toEqual([
+        {
+          id: 'doctor-99-DOCTOR_EXCELLENT_COLLABORATOR',
+          doctorId: 'doctor-99',
+          badgeType: 'DOCTOR_EXCELLENT_COLLABORATOR',
+          earnedAt: '2024-01-10T10:00:00Z',
+          isActive: true,
+          lastEvaluatedAt: '2024-01-10T10:00:00Z'
+        }
+      ]);
+    });
+
+    it('should map and keep only earned+active PATIENT badges', async () => {
+      const patientProgress: BadgeProgress[] = [
+        {
+          badgeType: 'PATIENT_MEDIBOOK_WELCOME',
+          badgeName: 'Bienvenida MediBook',
+          category: 'WELCOME',
+          rarity: 'COMMON',
+          description: 'Descripción',
+          icon: '👋',
+          color: '#2196F3',
+          criteria: 'Criterio',
+          earned: true,
+          progressPercentage: 100,
+          statusMessage: '¡Logro obtenido!',
+          earnedAt: '2024-01-15T10:00:00Z',
+          isActive: true,
+          lastEvaluatedAt: '2024-01-15T10:00:00Z'
+        },
+        {
+          badgeType: 'PATIENT_EXCELLENCE_MODEL',
+          badgeName: 'Modelo de Excelencia',
+          category: 'CLINICAL_EXCELLENCE',
+          rarity: 'LEGENDARY',
+          description: 'Descripción',
+          icon: '🏅',
+          color: '#FFD700',
+          criteria: 'Criterio',
+          earned: true,
+          progressPercentage: 100,
+          statusMessage: '¡Logro obtenido!',
+          earnedAt: '2024-01-15T10:00:00Z',
+          isActive: false,
+          lastEvaluatedAt: '2024-01-15T10:00:00Z'
+        },
+        {
+          badgeType: 'PATIENT_CONTINUOUS_FOLLOWUP',
+          badgeName: 'Seguimiento Continuo',
+          category: 'PREVENTIVE_CARE',
+          rarity: 'RARE',
+          description: 'Descripción',
+          icon: '📌',
+          color: '#4CAF50',
+          criteria: 'Criterio',
+          earned: false,
+          progressPercentage: 80,
+          statusMessage: 'En progreso',
+          isActive: true,
+          lastEvaluatedAt: '2024-01-15T10:00:00Z'
+        }
+      ];
+
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(patientProgress)
+      });
+
+      const result = await BadgeService.getCombinedBadgeData('patient-token', 'patient-88');
+
+      expect(result.progress).toEqual(patientProgress);
+      expect(result.badges).toEqual([
+        {
+          id: 'patient-88-PATIENT_MEDIBOOK_WELCOME',
+          doctorId: 'patient-88',
+          badgeType: 'PATIENT_MEDIBOOK_WELCOME',
+          earnedAt: '2024-01-15T10:00:00Z',
+          isActive: true,
+          lastEvaluatedAt: '2024-01-15T10:00:00Z'
+        }
+      ]);
+    });
+
     it('should throw error on fetch failure', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
-        status: 500
+        status: 500,
+        json: () => Promise.resolve({ message: 'Server error' })
       });
 
       await expect(BadgeService.getCombinedBadgeData('fake-token', 'doctor-1')).rejects.toThrow();
@@ -78,10 +221,26 @@ describe('BadgeService', () => {
     it('should throw error on evaluation failure', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
-        status: 500
+        status: 500,
+        json: () => Promise.resolve({ message: 'Evaluation error' })
       });
 
       await expect(BadgeService.evaluateUserBadges('fake-token', 'doctor-1')).rejects.toThrow();
+    });
+
+    it('should evaluate badges for patient users too', async () => {
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true
+      });
+
+      await expect(BadgeService.evaluateUserBadges('fake-token', 'patient-1')).resolves.toBeUndefined();
+
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8080/api/badges/patient-1/evaluate', expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Authorization': 'Bearer fake-token'
+        })
+      }));
     });
   });
 
