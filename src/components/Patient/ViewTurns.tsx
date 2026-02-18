@@ -1,8 +1,15 @@
 import React from "react";
 import { 
-  Box, Button, Typography, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, Avatar 
+  Box, Button, Typography, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, Avatar
 } from "@mui/material";
+import StarIcon from '@mui/icons-material/Star';
+import PaidIcon from '@mui/icons-material/Paid';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DisabledVisibleIcon from '@mui/icons-material/DisabledVisible';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useMachines } from "#/providers/MachineProvider";
 import { useDataMachine } from "#/providers/DataProvider";
 import { dayjsArgentina, nowArgentina, formatDateTime, formatTime } from '#/utils/dateTimeUtils';
@@ -17,6 +24,7 @@ import { filterTurns } from "#/utils/filterTurns";
 import ConfirmationModal from "#/components/shared/ConfirmationModal/ConfirmationModal";
 import { useTurnFileLogic } from "#/hooks/useTurnFileLogic";
 import FileActions from "#/utils/FileActions/FileActions";
+import { HealthAndSafety, Paid, PendingActions, Star } from "@mui/icons-material";
 
 const ViewTurns: React.FC = () => {
   const { turnState, turnSend, uiSend } = useMachines();
@@ -44,6 +52,7 @@ const ViewTurns: React.FC = () => {
     .slice()
     .sort((a, b) => dayjsArgentina(b.scheduledAt).valueOf() - dayjsArgentina(a.scheduledAt).valueOf());
   const pendingModifyRequests = dataContext.myModifyRequests?.filter((r: TurnModifyRequest) => r.status === "PENDING") || [];
+  const pendingModifyTurnIds = new Set(pendingModifyRequests.map((r: TurnModifyRequest) => r.turnId));
 
   const handleCancelTurn = (turnId: string) => {
     const turnData = allTurns.find((turn: TurnResponse) => turn.id === turnId);
@@ -81,6 +90,25 @@ const ViewTurns: React.FC = () => {
     }
   };
 
+   const getStatusPaymentIcon = (status?: string | null) => {
+    if (!status) {
+      return undefined;
+    }
+    
+    switch (status) {
+      case "PENDING":
+        return <PendingActions />;
+      case "PAID":
+        return <Paid />;
+      case "HEALTH INSURANCE":
+        return <HealthAndSafety />;
+      case "BONUS":
+        return <Star/>;
+      default:
+        return undefined;
+    }
+  };
+
   const getMethodPaymentLabel = (method?: string | null) => {
     if (!method) {
       return "";
@@ -102,10 +130,12 @@ const ViewTurns: React.FC = () => {
       case "HEALTH INSURANCE":
         return "Obra Social";
       default:
-        return method;
+        return undefined;
     }
 
   };
+
+  
 
   const getPaymentStatusClass = (status?: string | null) => {
     if (!status) {
@@ -131,6 +161,23 @@ const ViewTurns: React.FC = () => {
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'SCHEDULED':
+        return <ScheduleIcon />;
+      case 'CANCELED':
+        return <CancelIcon />;
+      case 'NO_SHOW':
+        return <DisabledVisibleIcon />;
+      case 'AVAILABLE':
+        return <EventAvailableIcon />;
+      case 'COMPLETED':
+        return <CheckCircleIcon />;
+      default:
+        return undefined;
+    }
+  };
+
   const isTurnPast = (scheduledAt: string) => {
     return dayjsArgentina(scheduledAt).isBefore(nowArgentina());
   };
@@ -140,7 +187,7 @@ const ViewTurns: React.FC = () => {
   };
 
   const hasPendingModifyRequest = (turnId: string) => {
-    return pendingModifyRequests.some((r: TurnModifyRequest) => r.turnId === turnId);
+    return pendingModifyTurnIds.has(turnId);
   };
 
   const canModifyTurn = (turn: TurnResponse) => {
@@ -157,6 +204,12 @@ const ViewTurns: React.FC = () => {
 
   const canDeleteFile = (turn: TurnResponse) => {
     return turn.status !== 'COMPLETED';
+  };
+
+  const chipIconInheritSx = {
+    '& .MuiChip-icon': {
+      color: 'inherit !important',
+    },
   };
 
   return (
@@ -280,23 +333,19 @@ const ViewTurns: React.FC = () => {
                         
                         {turn.status === 'SCHEDULED' && isTurnPast(turn.scheduledAt) ? (
                           <Chip 
-                            label="Programado" 
+                            label="Turno: Programado" 
                             size="small"
+                            icon={getStatusIcon(turn.status) ?? undefined}
                             className="viewturns-status-chip status-scheduled viewturns-chip-small"
+                            sx={chipIconInheritSx}
                           />
-                        ) : !hasPendingModifyRequest(turn.id) ? (
+                        ) : (
                           <Chip
-                            label={getStatusLabel(turn.status)}
+                            label={"Turno: "+ getStatusLabel(turn.status)}
                             className={`viewturns-status-chip status-${turn.status.toLowerCase()}`}
                             size="small"
-                          />
-                        ) : null}
-                        {hasPendingModifyRequest(turn.id) && (
-                          <Chip
-                            label="Cambio pendiente"
-                            size="small"
-                            color="info"
-                            className="viewturns-chip-small"
+                            icon={getStatusIcon(turn.status) ?? undefined}
+                            sx={chipIconInheritSx}
                           />
                         )}
 
@@ -309,12 +358,32 @@ const ViewTurns: React.FC = () => {
                           const chipLabel = methodLabel ? `${statusLabel} - ${methodLabel}` : statusLabel;
                           return (
                             <Chip
-                              label={chipLabel}
+                              label={"Pago: "+chipLabel}
+                              icon={getStatusPaymentIcon(paymentStatus)?? undefined}
                               size="small"
                               className={`patient-viewturns-payment-status-chip ${getPaymentStatusClass(paymentStatus)}`}
+                              sx={chipIconInheritSx}
                             />
                           );
                         })()}
+
+                        {dataContext.loading?.myModifyRequests ? (
+                          <Chip
+                            label="Verificando modificación..."
+                            size="small"
+                            className="viewturns-chip-small"
+                            variant="outlined"
+                          />
+                        ) : hasPendingModifyRequest(turn.id) ? (
+                          <Chip
+                            label="Modificación solicitada"
+                            size="small"
+                            color="warning"
+                            className="viewturns-chip-small"
+                          />
+                        ) : null}
+
+                        
 
                         <Typography variant="body1" className="viewturns-turn-datetime viewturns-date-text">
                           {formatDateTime(turn.scheduledAt, "dddd, DD [de] MMMM [de] YYYY").replace(/^\w/, (c) => c.toUpperCase())}

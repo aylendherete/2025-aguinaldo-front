@@ -1229,6 +1229,13 @@ export const dataMachine = createMachine({
               loading: ({ context }) => ({ ...context.loading, userBadges: false, userBadgeProgress: false }),
             }),
             ({ context }) => {
+              if (context.userRole === "PATIENT") {
+                setTimeout(() => {
+                  orchestrator.sendToMachine(DATA_MACHINE_ID, { type: "LOAD_MY_MODIFY_REQUESTS" });
+                }, 0);
+              }
+            },
+            ({ context }) => {
               // Send combined data to badge machine
               setTimeout(() => {
                 orchestrator.sendToMachine("badge", {
