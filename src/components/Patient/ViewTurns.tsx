@@ -2,8 +2,6 @@ import React from "react";
 import { 
   Box, Button, Typography, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, Avatar
 } from "@mui/material";
-import StarIcon from '@mui/icons-material/Star';
-import PaidIcon from '@mui/icons-material/Paid';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import CancelIcon from '@mui/icons-material/Cancel';
