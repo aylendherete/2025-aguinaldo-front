@@ -162,6 +162,11 @@ export const paymentRegisterMachine = createMachine({
                             ...previousForm,
                             ...updates,
                             ...(lockedMethod ? { method: lockedMethod } : {}),
+                            ...(updates.paymentStatus
+                                && updates.paymentStatus !== "BONUS"
+                                && updates.paymentStatus !== "HEALTH INSURANCE"
+                                ? { method: "" }
+                                : {}),
                             ...(updates.paymentStatus && updates.paymentStatus !== "HEALTH INSURANCE"
                                 ? { copaymentAmount: "" }
                                 : {})
