@@ -31,6 +31,28 @@ describe('PaymentRegisterService', () => {
   });
 
   describe('updatePaymentRegister', () => {
+    it('should map pending-status update rejection message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment status cannot be updated to PENDING' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'PENDING',
+            method: 'CASH',
+            paymentAmount: 10,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('No se puede actualizar el estado de pago a Pendiente.');
+    });
+
     it('should map payment amount finite-number validation message to Spanish', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,

@@ -232,6 +232,22 @@ export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
         return "Seleccioná un medio de pago.";
     }
 
+    if (form.paymentStatus === "BONUS" && form.method !== "BONUS") {
+        return "Cuando el estado es Bonificado, el medio debe ser Bonificado.";
+    }
+
+    if (form.paymentStatus === "HEALTH INSURANCE" && form.method !== "HEALTH INSURANCE") {
+        return "Cuando el estado es Obra Social, el medio debe ser Obra Social.";
+    }
+
+    if (form.paymentStatus !== "BONUS" && form.method === "BONUS") {
+        return "El medio Bonificado solo se permite con estado Bonificado.";
+    }
+
+    if (form.paymentStatus !== "HEALTH INSURANCE" && form.method === "HEALTH INSURANCE") {
+        return "El medio Obra Social solo se permite con estado Obra Social.";
+    }
+
     if (!form.paymentAmount) {
         return "Ingresá el monto abonado.";
     }

@@ -8,6 +8,7 @@ export interface LoadPaymentRegisterParams {
 }
 
 const PAYMENT_REGISTER_ERROR_MAP: Record<string, string> = {
+  "Payment status cannot be updated to PENDING": "No se puede actualizar el estado de pago a Pendiente.",
   "Payment amount must be greater than zero": "El monto del pago debe ser mayor que cero.",
   "Payment amount must be greater than zero when payment status is BONUS": "El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.",
   "Payment amount must be a finite number": "El monto del pago debe ser un número válido.",
