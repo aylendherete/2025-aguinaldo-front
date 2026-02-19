@@ -168,6 +168,7 @@ export const validateField = (key: string, value: any, context: AuthMachineConte
     if (isNaN(duration)) return "Debe ser un número";
     if (duration < 15) return "Mínimo 15 minutos";
     if (duration > 180) return "Máximo 180 minutos";
+    if (duration % 15 !== 0) return "Debe ser múltiplo de 15 minutos";
     return "";
   }
 

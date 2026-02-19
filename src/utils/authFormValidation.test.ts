@@ -179,6 +179,7 @@ describe('authFormValidation', () => {
       expect(validateField('slotDurationMin', 'abc', context)).toBe('Debe ser un número')
       expect(validateField('slotDurationMin', '4', context)).toBe('Mínimo 15 minutos')
       expect(validateField('slotDurationMin', '181', context)).toBe('Máximo 180 minutos')
+      expect(validateField('slotDurationMin', '16', context)).toBe('Debe ser múltiplo de 15 minutos')
       expect(validateField('slotDurationMin', '30', context)).toBe('')
     })
 
@@ -228,6 +229,7 @@ describe('authFormValidation', () => {
       expect(validateField('slotDurationMin', '0', context)).toBe('Mínimo 15 minutos')
       expect(validateField('slotDurationMin', '200', context)).toBe('Máximo 180 minutos')
       expect(validateField('slotDurationMin', '15', context)).toBe('')
+      expect(validateField('slotDurationMin', '59', context)).toBe('Debe ser múltiplo de 15 minutos')
       expect(validateField('slotDurationMin', '180', context)).toBe('')
     })
   })

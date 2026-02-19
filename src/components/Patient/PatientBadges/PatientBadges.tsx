@@ -56,25 +56,25 @@ const PatientBadges: React.FC = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box className="shared-container">
         <Box className="shared-header">
-          <Box className="shared-header-layout">
-            <Box className="shared-header-content">
-              <Avatar className="shared-header-icon patient-header-avatar">
-                <WorkspacePremiumIcon className="patient-header-icon" />
-              </Avatar>
-              <Box>
-                <Typography variant="h4" component="h1" className="shared-header-title">
-                  Colección de Logros
-                </Typography>
-                <Typography variant="h6" className="shared-header-subtitle patient-header-subtitle">
-                  Explora todos tus logros y progreso
-                </Typography>
-              </Box>
-            </Box>
-            <Box className="shared-header-spacer">
-              {isLoading && <CircularProgress />}
-            </Box>
-          </Box>
-        </Box>
+                  <Box className="shared-header-layout">
+                    <Box className="shared-header-content">
+                      <Avatar className="shared-header-icon patient-header-avatar">
+                        <WorkspacePremiumIcon className="patient-badge-header-icon" />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="h4" component="h1" className="shared-header-title">
+                          Colección de Logros
+                        </Typography>
+                        <Typography variant="h6" className="shared-header-subtitle patient-header-subtitle">
+                          Explora todos tus logros y progreso
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box className="shared-header-spacer">
+                      {isLoading && <CircularProgress />}
+                    </Box>
+                  </Box>
+                </Box>
 
         <Box className="badges-content">
           {stats && (

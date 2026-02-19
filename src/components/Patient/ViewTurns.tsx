@@ -3,11 +3,6 @@ import {
   Box, Button, Typography, CircularProgress, Chip, FormControl, InputLabel, Select, MenuItem, Avatar
 } from "@mui/material";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import CancelIcon from '@mui/icons-material/Cancel';
-import DisabledVisibleIcon from '@mui/icons-material/DisabledVisible';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useMachines } from "#/providers/MachineProvider";
 import { useDataMachine } from "#/providers/DataProvider";
 import { dayjsArgentina, nowArgentina, formatDateTime, formatTime } from '#/utils/dateTimeUtils';
@@ -22,7 +17,7 @@ import { filterTurns } from "#/utils/filterTurns";
 import ConfirmationModal from "#/components/shared/ConfirmationModal/ConfirmationModal";
 import { useTurnFileLogic } from "#/hooks/useTurnFileLogic";
 import FileActions from "#/utils/FileActions/FileActions";
-import { HealthAndSafety, Paid, PendingActions, Star } from "@mui/icons-material";
+import { Cancel, CheckCircle, DisabledVisible, EventAvailable, HealthAndSafety, Paid, PendingActions, Schedule, Star } from "@mui/icons-material";
 
 const ViewTurns: React.FC = () => {
   const { turnState, turnSend, uiSend } = useMachines();
@@ -83,6 +78,8 @@ const ViewTurns: React.FC = () => {
         return "Obra Social";
       case "BONUS":
         return "Bonificado";
+      case "CANCELED":
+        return "Cancelado";
       default:
         return status;
     }
@@ -102,6 +99,8 @@ const ViewTurns: React.FC = () => {
         return <HealthAndSafety />;
       case "BONUS":
         return <Star/>;
+      case "CANCELED":
+        return <Cancel />;
       default:
         return undefined;
     }
@@ -162,15 +161,15 @@ const ViewTurns: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'SCHEDULED':
-        return <ScheduleIcon />;
+        return <Schedule />;
       case 'CANCELED':
-        return <CancelIcon />;
+        return <Cancel />;
       case 'NO_SHOW':
-        return <DisabledVisibleIcon />;
+        return <DisabledVisible />;
       case 'AVAILABLE':
-        return <EventAvailableIcon />;
+        return <EventAvailable/>;
       case 'COMPLETED':
-        return <CheckCircleIcon />;
+        return <CheckCircle/>;
       default:
         return undefined;
     }

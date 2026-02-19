@@ -54,6 +54,7 @@ describe('paymentRegisterMachine', () => {
 
     actor.send({ type: 'UPDATE_LOCAL_FORM', paymentId: 'p1', updates: { paymentStatus: 'PAID' } })
     form = actor.getSnapshot().context.formByPaymentId.p1
+    expect(form.method).toBe('')
     expect(form.copaymentAmount).toBe('')
   })
 

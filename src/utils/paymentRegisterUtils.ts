@@ -2,6 +2,27 @@ import { dayjsArgentina } from "./dateTimeUtils";
 
 const monthFormatter = new Intl.DateTimeFormat("es-AR", { month: "long" });
 
+  export const getStatusPaymentLabel = (status?: string | null) => {
+    if (!status) {
+      return "Sin información de pago";
+    }
+    
+    switch (status) {
+      case "PENDING":
+        return "Pendiente";
+      case "PAID":
+        return "Pagado";
+      case "HEALTH INSURANCE":
+        return "Obra Social";
+      case "BONUS":
+        return "Bonificado";
+      case "CANCELED":
+        return "Cancelado";
+      default:
+        return status;
+    }
+  };
+
 export interface PaymentFormInput {
     paymentStatus: string;
     method: string;
