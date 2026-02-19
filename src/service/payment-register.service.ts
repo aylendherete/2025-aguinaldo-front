@@ -11,8 +11,8 @@ const PAYMENT_REGISTER_ERROR_MAP: Record<string, string> = {
   "Payment status cannot be updated to PENDING": "No se puede actualizar el estado de pago a Pendiente.",
   "Payment amount must be greater than zero": "El monto del pago debe ser mayor que cero.",
   "Payment amount must be greater than zero when payment status is BONUS": "El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.",
-  "Payment amount must be a finite number": "El monto del pago debe ser un número válido.",
-  "Copayment amount must be a finite number": "El copago debe ser un número válido.",
+  "Payment amount must be less than 10 million": "El monto del pago debe ser menor que 10 millones.",
+  "Copayment amount must be less than 10 million": "El copago debe ser menor que 10 millones.",
   "Copayment amount must be provided and greater or equal than zero when payment status is HEALTH INSURANCE": "El copago es obligatorio y debe ser mayor o igual que cero cuando el estado de pago es Obra Social.",
   "Copayment amount must be provided and greater than zero when payment status is HEALTH INSURANCE": "El copago es obligatorio y debe ser mayor que cero cuando el estado de pago es Obra Social.",
 };
