@@ -53,11 +53,11 @@ describe('PaymentRegisterService', () => {
       ).rejects.toThrow('No se puede actualizar el estado de pago a Pendiente.');
     });
 
-    it('should map payment amount finite-number validation message to Spanish', async () => {
+    it('should map payment amount limit number validation message to Spanish', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: () => Promise.resolve({ message: 'Payment amount must be a finite number' }),
+        json: () => Promise.resolve({ message: 'Payment amount must be less than 10 million' }),
       });
 
       await expect(
@@ -72,14 +72,14 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El monto del pago debe ser un número válido.');
+      ).rejects.toThrow('El monto del pago debe ser menor que 10 millones.');
     });
 
-    it('should map copayment finite-number validation message to Spanish', async () => {
+    it('should map copayment limit number validation message to Spanish', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: () => Promise.resolve({ message: 'Copayment amount must be a finite number' }),
+        json: () => Promise.resolve({ message: 'Copayment amount must be less than 10 million' }),
       });
 
       await expect(
@@ -94,7 +94,7 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El copago debe ser un número válido.');
+      ).rejects.toThrow('El copago debe ser menor que 10 millones.');
     });
 
     it('should map non-bonus amount validation message to Spanish', async () => {
