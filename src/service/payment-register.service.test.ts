@@ -57,7 +57,7 @@ describe('PaymentRegisterService', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: () => Promise.resolve({ message: 'Payment amount must be zero when payment status is BONUS' }),
+        json: () => Promise.resolve({ message: 'Payment amount must be greater than zero when payment status is BONUS' }),
       });
 
       await expect(
@@ -67,12 +67,12 @@ describe('PaymentRegisterService', () => {
           payload: {
             paymentStatus: 'BONUS',
             method: 'BONUS',
-            paymentAmount: 10,
+            paymentAmount: 0,
             copaymentAmount: null,
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El monto del pago debe ser cero cuando el estado de pago es Bonificado.');
+      ).rejects.toThrow('El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.');
     });
 
     it('should map health insurance copayment required message to Spanish', async () => {
