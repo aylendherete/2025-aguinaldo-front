@@ -10,6 +10,8 @@ export interface LoadPaymentRegisterParams {
 const PAYMENT_REGISTER_ERROR_MAP: Record<string, string> = {
   "Payment amount must be greater than zero": "El monto del pago debe ser mayor que cero.",
   "Payment amount must be greater than zero when payment status is BONUS": "El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.",
+  "Payment amount must be a finite number": "El monto del pago debe ser un número válido.",
+  "Copayment amount must be a finite number": "El copago debe ser un número válido.",
   "Copayment amount must be provided and greater or equal than zero when payment status is HEALTH INSURANCE": "El copago es obligatorio y debe ser mayor o igual que cero cuando el estado de pago es Obra Social.",
   "Copayment amount must be provided and greater than zero when payment status is HEALTH INSURANCE": "El copago es obligatorio y debe ser mayor que cero cuando el estado de pago es Obra Social.",
 };

@@ -31,6 +31,50 @@ describe('PaymentRegisterService', () => {
   });
 
   describe('updatePaymentRegister', () => {
+    it('should map payment amount finite-number validation message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment amount must be a finite number' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'PAID',
+            method: 'CASH',
+            paymentAmount: Number.POSITIVE_INFINITY,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El monto del pago debe ser un número válido.');
+    });
+
+    it('should map copayment finite-number validation message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Copayment amount must be a finite number' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'HEALTH INSURANCE',
+            method: 'HEALTH INSURANCE',
+            paymentAmount: 120,
+            copaymentAmount: Number.POSITIVE_INFINITY,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El copago debe ser un número válido.');
+    });
+
     it('should map non-bonus amount validation message to Spanish', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,

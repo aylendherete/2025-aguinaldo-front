@@ -237,14 +237,14 @@ export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
     }
 
     const paymentAmount = Number(form.paymentAmount);
-    if (Number.isNaN(paymentAmount)) {
+    if (Number.isNaN(paymentAmount) || !Number.isFinite(paymentAmount)) {
         return "Ingresá un monto abonado válido.";
     }
 
     if (form.paymentStatus === "HEALTH INSURANCE" && form.copaymentAmount !== "") {
         const copaymentAmount = Number(form.copaymentAmount);
 
-        if (Number.isNaN(copaymentAmount)) {
+        if (Number.isNaN(copaymentAmount) || !Number.isFinite(copaymentAmount)) {
             return "Ingresá un copago válido.";
         }
 
