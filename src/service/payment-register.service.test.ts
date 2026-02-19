@@ -31,7 +31,7 @@ describe('PaymentRegisterService', () => {
   });
 
   describe('updatePaymentRegister', () => {
-    it('should map pending-status update rejection message to Spanish', async () => {
+    it('should return pending-status update rejection message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -50,10 +50,10 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('No se puede actualizar el estado de pago a Pendiente.');
+      ).rejects.toThrow('Payment status cannot be updated to PENDING');
     });
 
-    it('should map payment amount limit number validation message to Spanish', async () => {
+    it('should return payment amount limit validation message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -72,10 +72,10 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El monto del pago debe ser menor que 10 millones.');
+      ).rejects.toThrow('Payment amount must be less than 10 million');
     });
 
-    it('should map copayment limit number validation message to Spanish', async () => {
+    it('should return copayment limit validation message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -94,10 +94,10 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El copago debe ser menor que 10 millones.');
+      ).rejects.toThrow('Copayment amount must be less than 10 million');
     });
 
-    it('should map non-bonus amount validation message to Spanish', async () => {
+    it('should return non-bonus amount validation message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -116,10 +116,10 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El monto del pago debe ser mayor que cero.');
+      ).rejects.toThrow('Payment amount must be greater than zero');
     });
 
-    it('should map bonus amount validation message to Spanish', async () => {
+    it('should return bonus amount validation message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -138,10 +138,10 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.');
+      ).rejects.toThrow('Payment amount must be greater than zero when payment status is BONUS');
     });
 
-    it('should map health insurance copayment required message to Spanish', async () => {
+    it('should return health insurance copayment required message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -160,7 +160,7 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El copago es obligatorio y debe ser mayor o igual que cero cuando el estado de pago es Obra Social.');
+      ).rejects.toThrow('Copayment amount must be provided and greater or equal than zero when payment status is HEALTH INSURANCE');
     });
 
     it('should throw backend message when copayment is greater than amount', async () => {
@@ -182,7 +182,7 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El copago debe ser menor o igual al monto del pago.');
+      ).rejects.toThrow('Copayment amount must be less than or equal to payment amount');
     });
 
     it('should throw backend message when copayment is set without amount', async () => {
@@ -204,10 +204,10 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('El monto del pago es obligatorio cuando se informa un copago.');
+      ).rejects.toThrow('Payment amount is required when copayment amount is set');
     });
 
-    it('should map non-updatable current payment status message to Spanish', async () => {
+    it('should return non-updatable current payment status message from backend', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -226,7 +226,7 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('No se puede actualizar un registro de pago con estado Pagado.');
+      ).rejects.toThrow('Payment register with status PAID cannot be updated');
     });
   });
 
