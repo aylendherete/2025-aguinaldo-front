@@ -45,9 +45,9 @@ export const getMethodLabel = (method: string) => {
                 return "Transferencia";
             case "BONUS":
                 return "Bonificado";
-            case "HEALTH_INSURANCE":
+            case "HEALTH INSURANCE":
                 return "Obra social";
-                                                   
+                                                    
         }  return method || "Sin registrar";   
     }
 
