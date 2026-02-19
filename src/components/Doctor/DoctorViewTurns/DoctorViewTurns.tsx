@@ -80,6 +80,8 @@ const DoctorViewTurns: React.FC = () => {
         return "Obra Social";
       case "BONUS":
         return "Bonificado";
+      case "CANCELED":
+        return "Cancelado";
       default:
         return status;
     }
@@ -99,6 +101,8 @@ const DoctorViewTurns: React.FC = () => {
           return <HealthAndSafety />;
         case "BONUS":
           return <Star />;
+        case "CANCELED":
+          return <Cancel />;
         default:
           return undefined;
       }
@@ -355,7 +359,7 @@ const DoctorViewTurns: React.FC = () => {
                           
                           {turn.status === 'SCHEDULED' && isTurnPast(turn.scheduledAt) ? (
                             <Chip 
-                              label="Programado" 
+                              label="Turno: Programado" 
                               size="small"
                               icon={getStatusIcon(turn.status)}
                               className="doctor-viewturns-status-chip status-scheduled doctor-viewturns-chip-small"
@@ -363,7 +367,7 @@ const DoctorViewTurns: React.FC = () => {
                             />
                           ) : (
                             <Chip
-                              label={getStatusLabel(turn.status)}
+                              label={"Turno: "+getStatusLabel(turn.status)}
                               className={`doctor-viewturns-status-chip status-${turn.status.toLowerCase()}`}
                               size="small"
                               icon={getStatusIcon(turn.status)}
@@ -380,7 +384,7 @@ const DoctorViewTurns: React.FC = () => {
                             const chipLabel = methodLabel ? `${statusLabel} - ${methodLabel}` : statusLabel;
                             return (
                               <Chip
-                                label={chipLabel}
+                                label={"Pago: " + chipLabel}
                                 size="small"
                                 className={`doctor-viewturns-payment-status-chip ${getPaymentStatusClass(paymentStatus)}`}
                                 icon={getStatusPaymentIcon(paymentStatus)}
