@@ -229,6 +229,7 @@ describe('AuthService', () => {
       name: 'John',
       surname: 'Doe',
       role: 'PATIENT',
+      gender: 'MALE',
       status: 'ACTIVE',
       accessToken: 'access-token-123',
       refreshToken: 'refresh-token-456'
@@ -343,6 +344,7 @@ describe('AuthService', () => {
       name: 'John',
       surname: 'Doe',
       role: 'PATIENT',
+      gender: 'MALE',
       status: 'ACTIVE',
       accessToken: 'new-access-token-123',
       refreshToken: 'new-refresh-token-456'
@@ -406,6 +408,7 @@ describe('AuthService', () => {
       name: 'John',
       surname: 'Doe',
       role: 'PATIENT',
+      gender: 'MALE',
       status: 'ACTIVE',
       accessToken: 'access-token-123',
       refreshToken: 'refresh-token-456'
@@ -428,6 +431,7 @@ describe('AuthService', () => {
       name: 'John',
       surname: 'Doe',
       role: 'PATIENT',
+      gender: 'MALE',
       status: 'ACTIVE',
       accessToken: 'access-token-123',
       refreshToken: 'refresh-token-456'

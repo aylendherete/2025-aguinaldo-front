@@ -2,6 +2,7 @@ export interface Doctor {
   id: string;
   name: string;
   surname: string;
+  gender?: string;
   email: string;
   medicalLicense: string;
   specialty: string;

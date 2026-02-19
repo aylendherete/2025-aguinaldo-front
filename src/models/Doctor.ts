@@ -16,6 +16,8 @@ export interface Patient {
   birthdate?: string;
   gender?: string;
   status: string;
+  healthInsurance?: string | null;
+  healthPlan?: string | null;
   score?: number | null;
   medicalHistory?: string; // For backward compatibility - latest medical history content
   medicalHistories?: MedicalHistory[]; // New field for multiple medical history entries

@@ -4,8 +4,10 @@ import {
 } from "@mui/material";
 import { useMachines } from "#/providers/MachineProvider";
 import { useAuthMachine } from "#/providers/AuthProvider";
+import { useDataMachine } from "#/providers/DataProvider";
 import { dayjsArgentina, nowArgentina, formatDateTime, formatTime } from '#/utils/dateTimeUtils';
 import { SignInResponse } from "#/models/Auth";
+import type { TurnModifyRequest } from "#/models/TurnModifyRequest";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { filterTurns } from "#/utils/filterTurns";
@@ -13,10 +15,12 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import SearchOutlined from "@mui/icons-material/SearchOutlined";
 import "./DoctorViewTurns.css";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { Cancel, CheckCircle, DisabledVisible, EventAvailable, HealthAndSafety, Paid, PendingActions, Schedule, Star } from "@mui/icons-material";
 
 const DoctorViewTurns: React.FC = () => {
   
   const { turnState, turnSend, uiSend } = useMachines();
+  const { dataState } = useDataMachine();
   const { authState } = useAuthMachine();
   const authContext = authState?.context;
   const user = authContext?.authResponse as SignInResponse;
@@ -24,6 +28,19 @@ const DoctorViewTurns: React.FC = () => {
   const turnContext = turnState.context;
   const showTurnsContext = turnContext.showTurns;
   const { cancellingTurnId, isCancellingTurn } = turnContext;
+  const dataContext = dataState.context;
+
+  const requests: TurnModifyRequest[] = dataContext.doctorModifyRequests || [];
+  const pendingModifyTurnIds = new Set(
+    requests
+      .filter((request) => request.status === "PENDING")
+      .map((request) => request.turnId)
+  );
+
+  const hasPendingModifyRequest = (turnId?: string) => {
+    if (!turnId) return false;
+    return pendingModifyTurnIds.has(turnId);
+  };
 
   const filteredTurns = (
     filterTurns(
@@ -67,6 +84,25 @@ const DoctorViewTurns: React.FC = () => {
         return status;
     }
   };
+
+  const getStatusPaymentIcon = (status?: string | null) => {
+      if (!status) {
+        return undefined;
+      }
+      
+      switch (status) {
+        case "PENDING":
+          return <PendingActions />;
+        case "PAID":
+          return <Paid />;
+        case "HEALTH INSURANCE":
+          return <HealthAndSafety />;
+        case "BONUS":
+          return <Star />;
+        default:
+          return undefined;
+      }
+    };
 
   const getMethodPaymentLabel = (method?: string) => {
     if (!method) {
@@ -117,6 +153,23 @@ const DoctorViewTurns: React.FC = () => {
         return status;
     }
   };
+
+   const getStatusIcon = (status: string) => {
+      switch (status) {
+        case 'SCHEDULED':
+          return <Schedule />;
+        case 'CANCELED':
+          return <Cancel />;
+        case 'NO_SHOW':
+          return <DisabledVisible />;
+        case 'AVAILABLE':
+          return <EventAvailable />;
+        case 'COMPLETED':
+          return <CheckCircle/>;
+        default:
+          return undefined;
+      }
+    };
 
   const isTurnPast = (scheduledAt: string) => {
     return dayjsArgentina(scheduledAt).isBefore(nowArgentina());
@@ -176,6 +229,12 @@ const DoctorViewTurns: React.FC = () => {
     }
   };
 
+
+  const chipIconInheritSx = {
+    '& .MuiChip-icon': {
+      color: 'inherit !important',
+    },
+  };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box className="shared-container">
@@ -298,13 +357,17 @@ const DoctorViewTurns: React.FC = () => {
                             <Chip 
                               label="Programado" 
                               size="small"
+                              icon={getStatusIcon(turn.status)}
                               className="doctor-viewturns-status-chip status-scheduled doctor-viewturns-chip-small"
+                              sx={chipIconInheritSx}
                             />
                           ) : (
                             <Chip
                               label={getStatusLabel(turn.status)}
                               className={`doctor-viewturns-status-chip status-${turn.status.toLowerCase()}`}
                               size="small"
+                              icon={getStatusIcon(turn.status)}
+                              sx={chipIconInheritSx}
                             />
                             
                           )}
@@ -320,9 +383,26 @@ const DoctorViewTurns: React.FC = () => {
                                 label={chipLabel}
                                 size="small"
                                 className={`doctor-viewturns-payment-status-chip ${getPaymentStatusClass(paymentStatus)}`}
+                                icon={getStatusPaymentIcon(paymentStatus)}
+                                sx={chipIconInheritSx}
                               />
                             );
                           })()}
+                          {dataContext.loading?.doctorModifyRequests ? (
+                            <Chip
+                              label="Verificando modificación..."
+                              size="small"
+                              className="doctor-viewturns-chip-small"
+                              variant="outlined"
+                            />
+                          ) : hasPendingModifyRequest(turn.id) ? (
+                            <Chip
+                              label="Modificación solicitada"
+                              size="small"
+                              color="warning"
+                              className="doctor-viewturns-chip-small"
+                            />
+                          ) : null}
                           <Typography variant="body1" className="doctor-viewturns-turn-datetime doctor-viewturns-date-text">
                             {formatDateTime(turn.scheduledAt, "dddd, DD [de] MMMM [de] YYYY").replace(/^\w/, (c) => c.toUpperCase())}
                           </Typography>

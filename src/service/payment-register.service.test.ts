@@ -31,6 +31,138 @@ describe('PaymentRegisterService', () => {
   });
 
   describe('updatePaymentRegister', () => {
+    it('should map pending-status update rejection message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment status cannot be updated to PENDING' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'PENDING',
+            method: 'CASH',
+            paymentAmount: 10,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('No se puede actualizar el estado de pago a Pendiente.');
+    });
+
+    it('should map payment amount finite-number validation message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment amount must be a finite number' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'PAID',
+            method: 'CASH',
+            paymentAmount: Number.POSITIVE_INFINITY,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El monto del pago debe ser un número válido.');
+    });
+
+    it('should map copayment finite-number validation message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Copayment amount must be a finite number' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'HEALTH INSURANCE',
+            method: 'HEALTH INSURANCE',
+            paymentAmount: 120,
+            copaymentAmount: Number.POSITIVE_INFINITY,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El copago debe ser un número válido.');
+    });
+
+    it('should map non-bonus amount validation message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment amount must be greater than zero' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'PAID',
+            method: 'CASH',
+            paymentAmount: 0,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El monto del pago debe ser mayor que cero.');
+    });
+
+    it('should map bonus amount validation message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment amount must be greater than zero when payment status is BONUS' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'BONUS',
+            method: 'BONUS',
+            paymentAmount: 0,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.');
+    });
+
+    it('should map health insurance copayment required message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Copayment amount must be provided and greater or equal than zero when payment status is HEALTH INSURANCE' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'HEALTH INSURANCE',
+            method: 'HEALTH INSURANCE',
+            paymentAmount: 120,
+            copaymentAmount: null,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('El copago es obligatorio y debe ser mayor o igual que cero cuando el estado de pago es Obra Social.');
+    });
+
     it('should throw backend message when copayment is greater than amount', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,

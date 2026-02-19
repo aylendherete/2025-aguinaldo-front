@@ -4,7 +4,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
 import { useMachines } from "#/providers/MachineProvider"
 import { ArrowBack, PersonOutlined, BadgeOutlined, EmailOutlined,PhoneOutlined,CakeOutlined,WcOutlined,
-  FiberManualRecordOutlined, AttachFile, History, Save} from '@mui/icons-material'
+  FiberManualRecordOutlined, AttachFile, History, Save,
+  LocalHospitalOutlined} from '@mui/icons-material'
 import { calculateAge, type SubcategoryCount } from "#/models/Doctor"
 import './PatientDetails.css'
 import { useDataMachine } from "#/providers/DataProvider"
@@ -321,6 +322,17 @@ const PatientDetails: React.FC = () => {
     return null;
   }
 
+  const normalizeCoverageValue = (value: unknown): string =>
+    typeof value === 'string' ? value.trim() : '';
+
+  const healthInsurance = normalizeCoverageValue(patient.healthInsurance);
+  const healthPlan = normalizeCoverageValue(patient.healthPlan);
+  const hasHealthCoverage = Boolean(healthInsurance || healthPlan);
+  const healthCoverageLabel =
+    healthInsurance && healthPlan
+      ? `${healthInsurance} - ${healthPlan}`
+      : healthInsurance || healthPlan;
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box className="patient-details-container">
@@ -352,6 +364,7 @@ const PatientDetails: React.FC = () => {
                     color={getStatusColor(patient.status) as any}
                     size="small"
                   />
+                  
                   {patient && ((patient as any).score != null ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Rating value={(patient as any).score} precision={0.1} readOnly size="small" />
@@ -440,6 +453,18 @@ const PatientDetails: React.FC = () => {
                       {getGenderLabel(patient.gender)}
                     </Typography>
                   </Box>
+
+                  {hasHealthCoverage && (
+                    <Box className="patient-details-info-item">
+                      <Typography variant="body2" color="textSecondary" className="patient-details-label">
+                        <LocalHospitalOutlined fontSize="small" sx={{ mr: 1 }} />
+                        Obra Social
+                      </Typography>
+                      <Typography variant="body1" className="patient-details-value">
+                        {healthCoverageLabel}
+                      </Typography>
+                    </Box>
+                  )}
                   
                   {patient.ratingSubcategories && patient.ratingSubcategories.length > 0 && (
                     <Box className="patient-details-info-item" sx={{ gridColumn: '1 / -1' }}>

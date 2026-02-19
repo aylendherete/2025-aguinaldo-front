@@ -102,6 +102,14 @@ const ReservationTurns: React.FC = () => {
 
   const selectedDoctor = turnContext.doctors.find((d: any) => d.id === formValues.doctorId) ?? null;
 
+  const getDoctorPrefix = (gender?: string | null) => {
+    const normalizedGender = (gender || '').trim().toLowerCase();
+    if (normalizedGender === 'female' || normalizedGender === 'femenino' || normalizedGender === 'f') {
+      return 'Dra. ';
+    }
+    return 'Dr. ';
+  };
+
   const handleMotiveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.length <= 500) {
@@ -504,7 +512,7 @@ const ReservationTurns: React.FC = () => {
                     </LocalizationProvider>
                   </Box>
                   <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
-                    👨‍⚕️ Dr. {selectedDoctor?.name} {selectedDoctor?.surname}
+                    👨‍⚕️ {selectedDoctor ? `${getDoctorPrefix(selectedDoctor.gender)}${selectedDoctor.name} ${selectedDoctor.surname}` : 'Profesional no seleccionado'}
                     {selectedDoctor?.score != null && (
                       <Box component="span" sx={{ ml: 1, display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
                         <Rating value={selectedDoctor.score} precision={0.1} readOnly size="small" />

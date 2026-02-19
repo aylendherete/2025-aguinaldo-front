@@ -19,7 +19,8 @@ vi.mock('@mui/icons-material', () => ({
   ExitToApp: vi.fn(),
   BarChart: vi.fn(),
   EmojiEvents: vi.fn(),
-  WorkspacePremium: vi.fn()
+  WorkspacePremium: vi.fn(),
+  AccountBalanceWallet: vi.fn()
 }))
 
 describe('sideBarMenuUtils', () => {
@@ -43,7 +44,7 @@ describe('sideBarMenuUtils', () => {
     it('should return correct menu items for doctor', () => {
       const menuItems = getDoctorMenuItems(mockHandleLogout)
 
-      expect(menuItems).toHaveLength(9)
+      expect(menuItems).toHaveLength(10)
       expect(menuItems[0]).toEqual({
         id: 'dashboard',
         title: 'Inicio',
@@ -75,24 +76,30 @@ describe('sideBarMenuUtils', () => {
         path: '/doctor/turns-modifications'
       })
       expect(menuItems[5]).toEqual({
+        id: 'payment-register',
+        title: 'Registro de Pagos',
+        iconComponent: expect.any(Function),
+        path: '/doctor/payment-register'
+      })
+      expect(menuItems[6]).toEqual({
         id: 'metrics',
         title: 'Métricas',
         iconComponent: expect.any(Function),
         path: '/doctor/metrics'
       })
-      expect(menuItems[6]).toEqual({
+      expect(menuItems[7]).toEqual({
         id: 'badges',
         title: 'Logros',
         iconComponent: expect.any(Function),
         path: '/doctor/badges'
       })
-      expect(menuItems[7]).toEqual({
+      expect(menuItems[8]).toEqual({
         id: 'profile',
         title: 'Mi Perfil',
         iconComponent: expect.any(Function),
         path: '/profile'
       })
-      expect(menuItems[8]).toEqual({
+      expect(menuItems[9]).toEqual({
         id: 'logout',
         title: 'Cerrar Sesión',
         iconComponent: expect.any(Function),
@@ -222,7 +229,7 @@ describe('sideBarMenuUtils', () => {
       const doctorMenu = getDoctorMenuItems(mockHandleLogout)
 
       expect(result).toEqual(doctorMenu)
-      expect(result).toHaveLength(9)
+      expect(result).toHaveLength(10)
     })
 
     it('should return patient menu items for PATIENT role', () => {
@@ -250,11 +257,18 @@ describe('sideBarMenuUtils', () => {
   })
 
   describe('getUserDisplayName', () => {
-    it('should format doctor name with "Dr." prefix', () => {
-      const user = { name: 'John Doe', role: 'DOCTOR' }
+    it('should format male doctor name with "Dr." prefix', () => {
+      const user = { name: 'John Doe', role: 'DOCTOR', gender: 'MALE' }
       const result = getUserDisplayName(user)
 
-      expect(result).toBe('Dr. John Doe')
+      expect(result).toBe('Dr.  John Doe')
+    })
+
+    it('should format female doctor name with "Dra." prefix', () => {
+      const user = { name: 'Jane Doe', role: 'DOCTOR', gender: 'FEMALE' }
+      const result = getUserDisplayName(user)
+
+      expect(result).toBe('Dra.  Jane Doe')
     })
 
     it('should format admin name with "Admin" prefix', () => {
@@ -278,11 +292,11 @@ describe('sideBarMenuUtils', () => {
       expect(result).toBe('Alice Brown')
     })
 
-    it('should handle empty name', () => {
-      const user = { name: '', role: 'DOCTOR' }
+    it('should default to "Dr." when doctor gender is missing', () => {
+      const user = { name: 'Alex', role: 'DOCTOR' }
       const result = getUserDisplayName(user)
 
-      expect(result).toBe('Dr. ')
+      expect(result).toBe('Dr.  Alex')
     })
 
     it('should handle undefined role', () => {
