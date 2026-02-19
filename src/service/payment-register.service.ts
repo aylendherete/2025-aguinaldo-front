@@ -1,5 +1,6 @@
 import { API_CONFIG, buildApiUrl, getAuthenticatedFetchOptions } from "../../config/api";
 import type {PaymentRegisterResponse, PaymentRegisterRequest} from "#/models/Turn";
+import { getStatusPaymentLabel } from "#/utils/paymentRegisterUtils";
 
 
 export interface LoadPaymentRegisterParams {
@@ -42,6 +43,13 @@ const PAYMENT_REGISTER_ERROR_MAP: Record<string, string> = {
 const mapPaymentRegisterErrorMessage = (message?: string): string => {
   if (!message) {
     return "No se pudo actualizar el registro de pagos";
+  }
+
+  if (message.startsWith("Payment register with status ") && message.endsWith(" cannot be updated")) {
+    const status = message
+      .replace("Payment register with status ", "")
+      .replace(" cannot be updated", "");
+    return `No se puede actualizar un registro de pago con estado ${getStatusPaymentLabel(status)}.`;
   }
 
   return PAYMENT_REGISTER_ERROR_MAP[message] || message;

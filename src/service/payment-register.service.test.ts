@@ -206,6 +206,28 @@ describe('PaymentRegisterService', () => {
         })
       ).rejects.toThrow('El monto del pago es obligatorio cuando se informa un copago.');
     });
+
+    it('should map non-updatable current payment status message to Spanish', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({ message: 'Payment register with status PAID cannot be updated' }),
+      });
+
+      await expect(
+        PaymentRegisterService.updatePaymentRegister({
+          accessToken: 'token',
+          turnId: 'turn-1',
+          payload: {
+            paymentStatus: 'HEALTH INSURANCE',
+            method: 'HEALTH INSURANCE',
+            paymentAmount: 100,
+            copaymentAmount: 20,
+            paidAt: '2026-02-14T10:00:00.000Z',
+          },
+        })
+      ).rejects.toThrow('No se puede actualizar un registro de pago con estado Pagado.');
+    });
   });
 
   describe('cancelPaymentRegister', () => {

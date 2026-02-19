@@ -202,10 +202,6 @@
   }
 }
 
-@import "../../shared/Dashboard/Dashboard.css";
-@import "../../shared/SharedStyles.css";
-
-/* Header Styling */
 .patient-header-avatar {
   background: #38a3a5 !important;
   width: 56px !important;
