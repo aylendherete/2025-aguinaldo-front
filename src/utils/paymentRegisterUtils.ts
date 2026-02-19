@@ -195,6 +195,7 @@ export const buildPaymentSummary = (periodTurns: any[]) => {
             totals.healthInsuranceCount += 1;
             const covered = paymentAmount - copaymentAmount;
             totals.totalCovered += covered > 0 ? covered : 0;
+            totals.totalCollected += copaymentAmount;
         }
 
         if (status === "PENDING" && turn.status === "COMPLETED") {

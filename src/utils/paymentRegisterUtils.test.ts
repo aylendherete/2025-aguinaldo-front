@@ -122,7 +122,7 @@ describe('paymentRegisterUtils', () => {
     const summary = buildPaymentSummary(turns)
 
     expect(summary.totalBilled).toBe(450)
-    expect(summary.totalCollected).toBe(100)
+    expect(summary.totalCollected).toBe(150)
     expect(summary.totalCopayment).toBe(50)
     expect(summary.totalCovered).toBe(150)
     expect(summary.totalPayments).toBe(3)
