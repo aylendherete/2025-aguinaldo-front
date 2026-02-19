@@ -220,6 +220,7 @@ export const buildPaymentSummary = (periodTurns: any[]) => {
 };
 
 export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
+
     if (!form) {
         return "Completá los datos del pago.";
     }
@@ -233,19 +234,19 @@ export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
     }
 
     if (form.paymentStatus === "BONUS" && form.method !== "BONUS") {
-        return "Cuando el estado es Bonificado, el medio debe ser Bonificado.";
+            return "El medio de pago debe ser Bonificado cuando el estado de pago es Bonificado.";
     }
 
     if (form.paymentStatus === "HEALTH INSURANCE" && form.method !== "HEALTH INSURANCE") {
-        return "Cuando el estado es Obra Social, el medio debe ser Obra Social.";
+            return "El medio de pago debe ser Obra Social cuando el estado de pago es Obra Social.";
     }
 
     if (form.paymentStatus !== "BONUS" && form.method === "BONUS") {
-        return "El medio Bonificado solo se permite con estado Bonificado.";
+            return "El estado de pago debe ser Bonificado cuando el medio de pago es Bonificado.";
     }
 
     if (form.paymentStatus !== "HEALTH INSURANCE" && form.method === "HEALTH INSURANCE") {
-        return "El medio Obra Social solo se permite con estado Obra Social.";
+            return "El estado de pago debe ser Obra Social cuando el medio de pago es Obra Social.";
     }
 
     if (!form.paymentAmount) {
@@ -257,15 +258,38 @@ export const validatePaymentForm = (form?: PaymentFormInput): string | null => {
         return "Ingresá un monto abonado válido.";
     }
 
-    if (form.paymentStatus === "HEALTH INSURANCE" && form.copaymentAmount !== "") {
+    if (paymentAmount > 9999999.99) {
+        return "El monto del pago debe ser menor que 10 millones.";
+    }
+
+    if (paymentAmount <= 0) {
+        if (form.paymentStatus === "BONUS") {
+                return "El monto del pago debe ser mayor que cero cuando el estado de pago es Bonificado.";
+        }
+        return "El monto del pago debe ser mayor que cero.";
+    }
+
+    if (form.paymentStatus === "HEALTH INSURANCE") {
+        if (form.copaymentAmount === "") {
+            return "El copago es obligatorio y debe ser mayor o igual que cero cuando el estado de pago es Obra Social.";
+        }
+
         const copaymentAmount = Number(form.copaymentAmount);
 
         if (Number.isNaN(copaymentAmount) || !Number.isFinite(copaymentAmount)) {
             return "Ingresá un copago válido.";
         }
 
+        if (copaymentAmount > 9999999.99) {
+            return "El copago debe ser menor que 10 millones.";
+        }
+
+        if (copaymentAmount < 0) {
+                return "El copago es obligatorio y debe ser mayor o igual que cero cuando el estado de pago es Obra Social.";
+        }
+
         if (copaymentAmount > paymentAmount) {
-            return "El copago debe ser menor o igual al monto abonado.";
+                return "El copago debe ser menor o igual al monto del pago.";
         }
     }
 
