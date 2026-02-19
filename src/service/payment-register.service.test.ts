@@ -182,7 +182,7 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('Copayment amount must be less than or equal to payment amount');
+      ).rejects.toThrow('El copago debe ser menor o igual al monto del pago.');
     });
 
     it('should throw backend message when copayment is set without amount', async () => {
@@ -204,7 +204,7 @@ describe('PaymentRegisterService', () => {
             paidAt: '2026-02-14T10:00:00.000Z',
           },
         })
-      ).rejects.toThrow('Payment amount is required when copayment amount is set');
+      ).rejects.toThrow('El monto del pago es obligatorio cuando se informa un copago.');
     });
   });
 

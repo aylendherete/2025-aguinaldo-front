@@ -127,6 +127,12 @@
   border-color: #0c3a84 !important;
 }
 
+.add-payment-register-btn.disabled {
+  background: #94a3b8 !important;
+  border-color: #94a3b8 !important;
+  cursor: not-allowed;
+}
+
 .loading-overlay {
   position: fixed;
   inset: 0;

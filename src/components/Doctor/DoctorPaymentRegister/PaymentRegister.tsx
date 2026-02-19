@@ -33,6 +33,7 @@ const PaymentRegister: React.FC = () => {
 
     const handleUpdateForm = (turnId: string, updates: Partial<{ paymentStatus: string; method: string; paymentAmount: string; copaymentAmount: string; }>) => {
         paymentRegisterSend({ type: "UPDATE_LOCAL_FORM", paymentId: turnId, updates });
+        paymentRegisterSend({ type: "CLEAR_PAYMENT_ERROR", paymentId: turnId });
     };
 
     const handleSavePayment = async (turnId: string) => {
@@ -284,6 +285,13 @@ const PaymentRegister: React.FC = () => {
                                 coverage,
                             } = buildPaymentTurnViewModel(turn, paymentRegisterContext.formByPaymentId[turn.id]);
 
+                            const liveValidationError = canEditPayment ? validatePaymentForm(formState) : null;
+                            const displayedError = liveValidationError || paymentRegisterContext.errorByPaymentId[turn.id];
+                            const isSaveDisabled =
+                                paymentRegisterContext.savingPaymentId === turn.id ||
+                                !!liveValidationError ||
+                                !canEditPayment;
+
                             return (
                                 <Card key={turn.id} variant="outlined" className={isCanceledPayment ? "payment-register-card-canceled" : ""}>
                                     <CardContent>
@@ -414,8 +422,8 @@ const PaymentRegister: React.FC = () => {
                                                     variant="contained"
                                                     onClick={() => handleSavePayment(turn.id)}
                                                     endIcon={<LocalAtm />}
-                                                    disabled={paymentRegisterContext.savingPaymentId === turn.id}
-                                                    className="add-payment-register-btn"
+                                                    disabled={isSaveDisabled}
+                                                    className={`add-payment-register-btn ${isSaveDisabled ? "disabled" : ""}`}
                                                 >
                                                     {paymentRegisterContext.savingPaymentId === turn.id ? (
                                                         <CircularProgress size={18} color="inherit" />
@@ -423,9 +431,9 @@ const PaymentRegister: React.FC = () => {
                                                         isCanceledPayment ? "Volver a registrar pago" : "Registrar pago"
                                                     )}
                                                 </Button>
-                                                {paymentRegisterContext.errorByPaymentId[turn.id] && (
+                                                {displayedError && (
                                                     <Typography variant="body2" color="error">
-                                                        {paymentRegisterContext.errorByPaymentId[turn.id]}
+                                                        {displayedError}
                                                     </Typography>
                                                 )}
                                             </Box>
