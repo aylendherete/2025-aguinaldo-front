@@ -55,7 +55,7 @@
 
 /* Chip styling */
 .patient-badges-chip {
-  background-color: #57cc99 !important;
+  background-color:  #38a3a5 !important;;
   color: white !important;
   font-weight: 600 !important;
 }
@@ -88,13 +88,13 @@
 .stat-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border-color: #57cc99;
+  border-color: #38a3a5;
 }
 
 .stat-value {
   font-size: 2.5rem !important;
   font-weight: 800 !important;
-  color: #57cc99 !important;
+  color:#38a3a5 !important;
   line-height: 1.2 !important;
   margin-bottom: 0.5rem !important;
 }
@@ -106,6 +106,118 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* Badges Section */
+
+.badges-filters {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+
+.badges-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.badges-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.badges-section-title {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+}
+
+/* Badges Grid */
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.locked-badge-container {
+  position: relative;
+}
+
+/* Empty State */
+.badges-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .badges-stats-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2rem !important;
+  }
+
+  .badges-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .badges-section {
+    padding: 1.5rem;
+  }
+
+  .badges-filters {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .badges-stats-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .badges-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@import "../../shared/Dashboard/Dashboard.css";
+@import "../../shared/SharedStyles.css";
+
+/* Header Styling */
+.patient-header-avatar {
+  background: #38a3a5 !important;
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.patient-badge-header-icon {
+  font-size: 24px !important;
+  color: white !important;
+}
+
+
 
 /* Badges Section */
 .badges-section {
@@ -174,6 +286,10 @@
 
   .badges-section {
     padding: 1.5rem;
+  }
+
+  .badges-filters {
+    padding: 1rem;
   }
 }
 
