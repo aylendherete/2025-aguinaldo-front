@@ -23,9 +23,8 @@ const PaymentRegister: React.FC = () => {
     const selectedMonth = paymentRegisterContext.periodMonth ?? currentDate.month();
     const selectedYear = paymentRegisterContext.periodYear ?? currentDate.year();
     const isLoadingPaymentRegister = paymentRegisterContext.loading || !!paymentRegisterContext.savingPaymentId;
-    const loadingMessage = paymentRegisterContext.loading
-        ? "Cargando registros..."
-        : "Registrando pago...";
+    
+
     const years = getPaymentRegisterYears(turns, currentDate.year());
     const months = getPaymentRegisterMonths(turns, selectedYear, currentDate.month())
         .map((month) => ({ value: month, label: getMonthLabel(month, selectedYear) }));
@@ -103,10 +102,8 @@ const PaymentRegister: React.FC = () => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             {isLoadingPaymentRegister && (
                 <Box className="loading-overlay">
-                    <Box className="loading-overlay-card">
-                        <CircularProgress size={28} />
-                        <Typography variant="body2">{loadingMessage}</Typography>
-                    </Box>
+                        <CircularProgress size={55} />
+                  
                 </Box>
             )}
             <Box className="shared-container">
