@@ -50,6 +50,7 @@ const EnableHours: React.FC = () => {
             return;
         }
         
+        const slotDurationMin = doctorContext.slotDurationMin || 30;
         const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
         let hasValidData = false;
         const errors: string[] = [];
@@ -59,6 +60,8 @@ const EnableHours: React.FC = () => {
                 if (!day.ranges || day.ranges.length === 0) {
                     errors.push(`${day.day}: No hay rangos de horarios configurados`);
                 } else {
+                    const validRangesForOverlap: { startTime: number; endTime: number; rangeIndex: number }[] = [];
+
                     day.ranges.forEach((range: any, rangeIndex: number) => {
                         if (!range.start || !range.end) {
                             errors.push(`${day.day} - Rango ${rangeIndex + 1}: Falta hora de inicio o fin`);
@@ -74,15 +77,32 @@ const EnableHours: React.FC = () => {
                                 const [endHour, endMin] = range.end.split(':').map(Number);
                                 const startTime = startHour * 60 + startMin;
                                 const endTime = endHour * 60 + endMin;
+                                const duration = endTime - startTime;
                                 
                                 if (startTime >= endTime) {
                                     errors.push(`${day.day} - Rango ${rangeIndex + 1}: La hora de inicio debe ser menor que la hora de fin`);
+                                } else if (startTime % slotDurationMin !== 0 || endTime % slotDurationMin !== 0 || duration % slotDurationMin !== 0) {
+                                    errors.push(`${day.day} - Rango ${rangeIndex + 1}: Debe ser múltiplo de ${slotDurationMin} min`);
                                 } else {
                                     hasValidData = true;
+                                    validRangesForOverlap.push({ startTime, endTime, rangeIndex });
                                 }
                             }
                         }
                     });
+
+                    if (validRangesForOverlap.length > 1) {
+                        const sortedRanges = [...validRangesForOverlap].sort((a, b) => a.startTime - b.startTime);
+
+                        for (let i = 1; i < sortedRanges.length; i++) {
+                            const previous = sortedRanges[i - 1];
+                            const current = sortedRanges[i];
+
+                            if (current.startTime < previous.endTime) {
+                                errors.push(`${day.day}: Los rangos ${previous.rangeIndex + 1} y ${current.rangeIndex + 1} se superponen`);
+                            }
+                        }
+                    }
                 }
             }
         });

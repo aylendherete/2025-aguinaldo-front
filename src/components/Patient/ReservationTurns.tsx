@@ -546,7 +546,7 @@ const ReservationTurns: React.FC = () => {
                       </Typography>
                       <Box className="reservation-time-grid">
                         {(() => {
-                          return turnContext.availableTurns
+                          return (turnContext.availableTurns.sort((a: string, b: string) => dayjsArgentina(a).diff(dayjsArgentina(b))))
                             .filter((timeSlot: string) => {
                               const slotDateTime = dayjsArgentina(timeSlot);
                               const now = nowArgentina();
