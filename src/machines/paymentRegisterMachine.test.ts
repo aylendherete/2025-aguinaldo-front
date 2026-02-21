@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createActor } from 'xstate'
 
+vi.mock('#/core/Orchestrator', () => ({
+  orchestrator: {
+    sendToMachine: vi.fn(),
+  },
+}))
+
+
 vi.mock('../service/payment-register.service', () => ({
   PaymentRegisterService: {
     loadPaymentRegister: vi.fn(),
@@ -8,8 +15,12 @@ vi.mock('../service/payment-register.service', () => ({
   },
 }))
 
+
+
+
 import { PaymentRegisterService } from '../service/payment-register.service'
-import { paymentRegisterMachine } from './paymentRegisterMachine'
+import { paymentRegisterMachine} from './paymentRegisterMachine'
+
 
 describe('paymentRegisterMachine', () => {
   beforeEach(() => {
@@ -103,6 +114,7 @@ describe('paymentRegisterMachine', () => {
       copaymentAmount: null,
     } as any)
 
+    
     const actor = createActor(paymentRegisterMachine)
     actor.start()
     actor.send({ type: 'SET_AUTH', accessToken: 'token', turnId: 'turn-9' })
