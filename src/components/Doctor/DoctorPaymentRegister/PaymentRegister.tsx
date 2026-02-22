@@ -12,7 +12,7 @@ import "./PaymentRegister.css";
 import {getMonthLabel,currencyFormatter,getMethodLabel,getPaymentRegisterYears,getPaymentRegisterMonths,getPeriodTurns,getPaymentTurns,buildPaymentSummary,validatePaymentForm,buildPaymentUpdatePayload,buildPaymentTurnViewModel,} from "#/utils/paymentRegisterUtils";
 
 const PaymentRegister: React.FC = () => {
-    const { paymentRegisterState, paymentRegisterSend } = useMachines();
+    const { uiSend, paymentRegisterState, paymentRegisterSend } = useMachines();
     const { dataState, dataSend } = useDataMachine();
     const dataContext = dataState.context;
     const turns = dataContext.myTurns || [];
@@ -42,6 +42,7 @@ const PaymentRegister: React.FC = () => {
     const handleSavePayment = async (turnId: string) => {
         if (!accessToken) {
             paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message: "Sesión expirada. Volvé a iniciar sesión." });
+            uiSend({ type: "OPEN_SNACKBAR", message: "Sesión expirada. Volvé a iniciar sesión.", severity: "error" });
             return;
         }
         
@@ -49,10 +50,11 @@ const PaymentRegister: React.FC = () => {
         const validationError = validatePaymentForm(form);
         if (validationError) {
             paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message: validationError });
+            uiSend({ type: "OPEN_SNACKBAR", message: validationError, severity: "error" });
             return;
         }
 
-        paymentRegisterSend({ type: "UPDATE_PAYMENT_REGISTER"})
+       
         paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: turnId });
         paymentRegisterSend({ type: "CLEAR_PAYMENT_ERROR", paymentId: turnId });
 
@@ -65,12 +67,14 @@ const PaymentRegister: React.FC = () => {
                 turnId,
                 payload,
             });
-
+            
             dataSend({ type: "LOAD_MY_TURNS" });
             paymentRegisterSend({ type: "LOAD_PAYMENT_REGISTER" });
+            uiSend({ type: "OPEN_SNACKBAR", message: "Registro de pago actualizado exitosamente", severity: "success" });
         } catch (error) {
             const message = error instanceof Error ? error.message : "Error al registrar el pago";
             paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message });
+            uiSend({ type: "OPEN_SNACKBAR", message, severity: "error" });
         } finally {
             paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: null });
         }
@@ -79,6 +83,7 @@ const PaymentRegister: React.FC = () => {
     const handleCancelPayment = async (turnId: string) => {
         if (!accessToken) {
             paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message: "Sesión expirada. Volvé a iniciar sesión." });
+            uiSend({ type: "OPEN_SNACKBAR", message: "Sesión expirada. Volvé a iniciar sesión.", severity: "error" });
             return;
         }
 
@@ -89,9 +94,11 @@ const PaymentRegister: React.FC = () => {
             await PaymentRegisterService.cancelPaymentRegister({ accessToken, turnId });
             dataSend({ type: "LOAD_MY_TURNS" });
             paymentRegisterSend({ type: "LOAD_PAYMENT_REGISTER" });
+            uiSend({ type: "OPEN_SNACKBAR", message: "Registro de pago eliminado exitosamente", severity: "success" });
         } catch (error) {
             const message = error instanceof Error ? error.message : "Error al eliminar el registro de pago";
             paymentRegisterSend({ type: "SET_PAYMENT_ERROR", paymentId: turnId, message });
+            uiSend({ type: "OPEN_SNACKBAR", message, severity: "error" });
         } finally {
             paymentRegisterSend({ type: "SET_SAVING_PAYMENT", paymentId: null });
         }

@@ -1,6 +1,8 @@
 import { createMachine, assign, fromPromise } from "xstate";
 import { PaymentRegisterService } from "../service/payment-register.service";
 import type { PaymentRegisterResponse } from "#/models/Turn";
+import { orchestrator } from "#/core/Orchestrator";
+import { UI_MACHINE_ID } from "./uiMachine";
 
 export const PAYMENT_REGISTER_MACHINE_ID = "payment_register";
 export const PAYMENT_REGISTER_MACHINE_EVENT_TYPES = [
@@ -259,7 +261,7 @@ export const paymentRegisterMachine = createMachine({
         updatingPaymentRegister:{
             entry: assign({
                 updatingPaymentRegister: true,
-                error: null
+                error: null,
             }),
             invoke: {
                 src: fromPromise(async ({ input }: { input: { accessToken: string; turnId: string; payload: any } }) => {
@@ -278,17 +280,27 @@ export const paymentRegisterMachine = createMachine({
                 }),
                 onDone: {
                     target: "idle",
-                    actions: assign(({ event }) => ({
-                        paymentRegister: event.output,
-                        formValues: {
-                            paymentStatus: event.output?.paymentStatus || "",
-                            method: event.output?.method || "",
-                            paidAt: event.output?.paidAt || null,
-                            paymentAmount: event.output?.paymentAmount ?? null,
-                            copaymentAmount: event.output?.copaymentAmount ?? null,
+                    actions: [
+                        assign(({ event }) => ({
+                            paymentRegister: event.output,
+                            formValues: {
+                                paymentStatus: event.output?.paymentStatus || "",
+                                method: event.output?.method || "",
+                                paidAt: event.output?.paidAt || null,
+                                paymentAmount: event.output?.paymentAmount ?? null,
+                                copaymentAmount: event.output?.copaymentAmount ?? null,
+                            },
+                            updatingPaymentRegister: false
+                        })),
+                        ()=>{
+                        orchestrator.sendToMachine(UI_MACHINE_ID,{
+                            type:"OPEN_SNACKBAR",
+                            message:"Registro de pago actualizado con éxito",
+                            severity:"success"
+                            })  ;        
                         },
-                        updatingPaymentRegister: false
-                    }))
+                    
+]
                 },
                 onError: {
                     target: "idle",
